@@ -6,8 +6,14 @@ integration, and smart-query resolution-chip helpers.
 """
 
 import traceback
+import copy
+import secrets
+import threading
+import time
+from collections import OrderedDict
+from types import SimpleNamespace
 
-from flask import Blueprint, abort, current_app, render_template, request
+from flask import Blueprint, abort, current_app, render_template, request, url_for
 
 from card_db_search_tools.basic_search_tools.normalization_helpers.strict_id_inputs import (
     IdentifierRefinementError,
@@ -43,6 +49,7 @@ def _search_params():
     """Collect all search params into a dict for template rendering."""
     return {
         'smart_q': request.args.get('smart_q', '').strip(),
+        'resolved_search': request.args.get('resolved_search', '').strip(),
         'agentic': request.args.get('agentic', '').strip(),
         'agentic_limit': request.args.get('agentic_limit', '20').strip(),
         'doi': request.args.get('doi', '').strip(),
@@ -79,7 +86,7 @@ def _search_params():
 # SQL query builder
 # ---------------------------------------------------------------------------
 
-def _build_search_query(q):
+def _build_search_query(q, alternatives=None):
     """Build SQL WHERE clause from search params.
 
     Returns (select_sql, count_sql, params).
@@ -112,7 +119,7 @@ def _build_search_query(q):
     # -- Chemistry --
     if q['compounds']:
         compounds = validate_search_values(
-            "compound", q['compounds'], field="compounds"
+            "compound", [v.strip() for v in q['compounds'].split(';') if v.strip()], field="compounds"
         )
         for i, compound in enumerate(compounds):
             alias = f"bc_{i}"
@@ -153,34 +160,32 @@ def _build_search_query(q):
             wheres.append("bprop.prop_name LIKE ?")
             params.append(f'%{property_atoms[0]}%')
     if q['property_kw']:
-        for kw in validate_search_values(
-            "property", q['property_kw'], field="property_kw"
-        ):
-            if "block_properties" not in " ".join(joins):
-                joins.append(
-                    "JOIN block_properties bpkw ON bpkw.doi = bi.doi "
-                    "AND bpkw.block_number = bi.block_number AND bpkw.block_type = bi.block_type"
-                )
+        for index, kw in enumerate(validate_search_values("property", [v.strip() for v in q['property_kw'].split(';') if v.strip()], field="property_kw")):
+            alias = f"bpkw_{index}"
+            joins.append(
+                f"JOIN block_properties {alias} ON {alias}.doi = bi.doi "
+                f"AND {alias}.block_number = bi.block_number AND {alias}.block_type = bi.block_type"
+            )
             if kw.startswith("GLOBprop_"):
-                wheres.append("bpkw.prop_num_id = ?")
+                wheres.append(f"{alias}.prop_num_id = ?")
                 params.append(kw)
             else:
-                wheres.append("bpkw.prop_name LIKE ?")
+                wheres.append(f"{alias}.prop_name LIKE ?")
                 params.append(f'%{kw}%')
+
     if q['phase']:
-        phase_atoms = validate_search_values("phase", q['phase'], field="phase")
-        if len(phase_atoms) != 1:
-            raise ValueError("phase accepts exactly one phase search value")
-        if phase_atoms[0].startswith("GLOBphase_"):
-            phase_clause = "bp2.phase_num_id = ?"
-            params.append(phase_atoms[0])
-        else:
-            phase_clause = "bp2.phase_id LIKE ?"
-            params.append(f'%{phase_atoms[0]}%')
-        wheres.append(
-            "EXISTS (SELECT 1 FROM block_properties bp2 WHERE bp2.doi = bi.doi "
-            "AND bp2.block_number = bi.block_number AND " + phase_clause + ")"
-        )
+        phase_atoms = validate_search_values("phase", [v.strip() for v in q['phase'].split(';') if v.strip()], field="phase")
+        for phase in phase_atoms:
+            if phase.startswith("GLOBphase_"):
+                phase_clause = "bp2.phase_num_id = ?"
+                params.append(phase)
+            else:
+                phase_clause = "bp2.phase_id LIKE ?"
+                params.append(f'%{phase}%')
+            wheres.append(
+                "EXISTS (SELECT 1 FROM block_properties bp2 WHERE bp2.doi = bi.doi "
+                "AND bp2.block_number = bi.block_number AND bp2.block_type = bi.block_type AND " + phase_clause + ")"
+            )
     if q['block_type']:
         wheres.append("bi.block_type = ?")
         params.append(q['block_type'])
@@ -203,17 +208,17 @@ def _build_search_query(q):
             wheres.append("bvar.var_name LIKE ?")
             params.append(f'%{variable_atoms[0]}%')
     if q['var_kw']:
-        for kw in validate_search_values("variable", q['var_kw'], field="var_kw"):
-            if "block_variables" not in " ".join(joins):
-                joins.append(
-                    "JOIN block_variables bvkw ON bvkw.doi = bi.doi "
-                    "AND bvkw.block_number = bi.block_number AND bvkw.block_type = bi.block_type"
-                )
+        for index, kw in enumerate(validate_search_values("variable", [v.strip() for v in q['var_kw'].split(';') if v.strip()], field="var_kw")):
+            alias = f"bvkw_{index}"
+            joins.append(
+                f"JOIN block_variables {alias} ON {alias}.doi = bi.doi "
+                f"AND {alias}.block_number = bi.block_number AND {alias}.block_type = bi.block_type"
+            )
             if kw.startswith("GLOBvar_"):
-                wheres.append("bvkw.var_num_id = ?")
+                wheres.append(f"{alias}.var_num_id = ?")
                 params.append(kw)
             else:
-                wheres.append("bvkw.var_name LIKE ?")
+                wheres.append(f"{alias}.var_name LIKE ?")
                 params.append(f'%{kw}%')
 
     # -- Measurements --
@@ -234,19 +239,17 @@ def _build_search_query(q):
             wheres.append("bmeas.method_name LIKE ?")
             params.append(f'%{measurement_atoms[0]}%')
     if q['meas_kw']:
-        for kw in validate_search_values(
-            "measurement", q['meas_kw'], field="meas_kw"
-        ):
-            if "block_measurements" not in " ".join(joins):
-                joins.append(
-                    "JOIN block_measurements bmkw ON bmkw.doi = bi.doi "
-                    "AND bmkw.block_number = bi.block_number AND bmkw.block_type = bi.block_type"
-                )
+        for index, kw in enumerate(validate_search_values("measurement", [v.strip() for v in q['meas_kw'].split(';') if v.strip()], field="meas_kw")):
+            alias = f"bmkw_{index}"
+            joins.append(
+                f"JOIN block_measurements {alias} ON {alias}.doi = bi.doi "
+                f"AND {alias}.block_number = bi.block_number AND {alias}.block_type = bi.block_type"
+            )
             if kw.startswith("GLOBmeas_"):
-                wheres.append("bmkw.meas_num_id = ?")
+                wheres.append(f"{alias}.meas_num_id = ?")
                 params.append(kw)
             else:
-                wheres.append("bmkw.method_name LIKE ?")
+                wheres.append(f"{alias}.method_name LIKE ?")
                 params.append(f'%{kw}%')
 
     # -- Constraints --
@@ -267,19 +270,17 @@ def _build_search_query(q):
             wheres.append("bcon.constr_name LIKE ?")
             params.append(f'%{constraint_atoms[0]}%')
     if q['constr_kw']:
-        for kw in validate_search_values(
-            "constraint", q['constr_kw'], field="constr_kw"
-        ):
-            if "block_constraints" not in " ".join(joins):
-                joins.append(
-                    "JOIN block_constraints bckw ON bckw.doi = bi.doi "
-                    "AND bckw.block_number = bi.block_number AND bckw.block_type = bi.block_type"
-                )
+        for index, kw in enumerate(validate_search_values("constraint", [v.strip() for v in q['constr_kw'].split(';') if v.strip()], field="constr_kw")):
+            alias = f"bckw_{index}"
+            joins.append(
+                f"JOIN block_constraints {alias} ON {alias}.doi = bi.doi "
+                f"AND {alias}.block_number = bi.block_number AND {alias}.block_type = bi.block_type"
+            )
             if kw.startswith("GLOBconstr_"):
-                wheres.append("bckw.constr_num_id = ?")
+                wheres.append(f"{alias}.constr_num_id = ?")
                 params.append(kw)
             else:
-                wheres.append("bckw.constr_name LIKE ?")
+                wheres.append(f"{alias}.constr_name LIKE ?")
                 params.append(f'%{kw}%')
 
     # System type / n_components
@@ -294,19 +295,29 @@ def _build_search_query(q):
         wheres.append("bi.n_datapoints >= ?")
         params.append(int(q['min_datapoints']))
 
+    if alternatives is not None:
+        if not alternatives:
+            raise ValueError('No resolved OR groups are available. Submit the smart search again.')
+        union = []
+        for group in alternatives:
+            group_sql, _, group_params = _build_search_query(group)
+            union.append('SELECT doi, block_number, block_type FROM (' + group_sql + ')')
+            params.extend(group_params)
+        wheres.append('(bi.doi, bi.block_number, bi.block_type) IN (' + ' UNION '.join(union) + ')')
+
     # Assemble
     base_cols = (
         "bi.doi, bi.block_number, bi.block_type, bi.compound_system, "
         "bi.n_datapoints, bi.system_type, bi.n_components, r.doi as rdoi"
     )
-    base = f"SELECT {base_cols} FROM block_index bi JOIN ref_index r ON r.doi = bi.doi"
+    base = f"SELECT DISTINCT {base_cols} FROM block_index bi JOIN ref_index r ON r.doi = bi.doi"
     for j in joins:
         base += f" {j}"
     if wheres:
         base += " WHERE " + " AND ".join(wheres)
 
     count_sql = (
-        "SELECT COUNT(*), COUNT(DISTINCT bi.doi), COALESCE(SUM(bi.n_datapoints),0) "
+        "SELECT DISTINCT bi.doi, bi.block_number, bi.block_type, bi.n_datapoints "
         "FROM block_index bi JOIN ref_index r ON r.doi = bi.doi"
     )
     for j in joins:
@@ -314,6 +325,10 @@ def _build_search_query(q):
     if wheres:
         count_sql += " WHERE " + " AND ".join(wheres)
 
+    # A block may have several matching properties, variables, or constraints.
+    # Count its points once, matching the distinct block rows shown below.
+    count_sql = ("SELECT COUNT(*), COUNT(DISTINCT doi), COALESCE(SUM(n_datapoints),0) "
+                 "FROM (" + count_sql + ") matched_blocks")
     return base, count_sql, params
 
 
@@ -480,6 +495,112 @@ def _resolve_dynamic_name(name: str, component_name: str | None) -> str:
     return name
 
 
+_SEARCH_OPTIONS = frozenset({'sim_query', 'sim_threshold', 'sim_topk', 'smart_q', 'resolved_search',
+                             'agentic', 'agentic_limit', 'max_wait_seconds',
+                             'allow_query_agent', 'agentic_all_fields'})
+_RESOLUTION_TTL = 1800
+_RESOLUTION_LIMIT = 128
+
+
+def _has_search_filter(q):
+    return any(value for key, value in q.items() if key not in _SEARCH_OPTIONS)
+
+
+def _merge_resolved_fields(q, fld):
+    # Merge resolved fields into q (only fill empty fields)
+    if fld.get('compounds') and not q['compounds']:
+        q['compounds'] = '; '.join(c['global_id'] for c in fld['compounds'])
+    if fld.get('properties') and not q['property_kw']:
+        q['property_kw'] = '; '.join(p['global_id'] for p in fld['properties'])
+    if fld.get('phases') and not q['phase']:
+        q['phase'] = '; '.join(p['global_id'] for p in fld['phases'])
+    if fld.get('title_keywords') and not q['title']:
+        q['title'] = fld['title_keywords']
+    if fld.get('doi') and not q['doi']:
+        q['doi'] = fld['doi']
+    if fld.get('authors') and not q['authors']:
+        q['authors'] = fld['authors']
+    if fld.get('journal') and not q['journal']:
+        q['journal'] = fld['journal']
+    if fld.get('year_min') and not q['year_min']:
+        q['year_min'] = str(fld['year_min'])
+    if fld.get('year_max') and not q['year_max']:
+        q['year_max'] = str(fld['year_max'])
+    if fld.get('system_type') and not q['system_type']:
+        q['system_type'] = fld['system_type']
+    if fld.get('block_type') and not q['block_type']:
+        q['block_type'] = fld['block_type']
+    if fld.get('n_components') and not q['n_components']:
+        q['n_components'] = str(fld['n_components'])
+    if fld.get('min_datapoints') and not q['min_datapoints']:
+        q['min_datapoints'] = str(fld['min_datapoints'])
+    if fld.get('formula') and not q['formula']:
+        q['formula'] = fld['formula']
+    if fld.get('variables') and not q['var_kw']:
+        q['var_kw'] = '; '.join(v['global_id'] for v in fld['variables'])
+    if fld.get('measurements') and not q['meas_kw']:
+        q['meas_kw'] = '; '.join(m['global_id'] for m in fld['measurements'])
+    if fld.get('constraints') and not q['constr_kw']:
+        q['constr_kw'] = '; '.join(c['global_id'] for c in fld['constraints'])
+    return q
+
+
+def _search_resolution_cache():
+    return current_app.extensions.setdefault('thermoml_search_resolutions',
+                                             {'lock': threading.Lock(), 'entries': OrderedDict()})
+
+
+def _clear_generated_search_fields(q, signature):
+    """Discard only unchanged autofill values when the user changes smart input."""
+    cache = _search_resolution_cache()
+    with cache['lock']:
+        item = cache['entries'].get(q['resolved_search'])
+        if item and item['signature'] != signature and not request.args.get('page'):
+            for key, value in item.get('generated_fields', {}).items():
+                if q.get(key) == value:
+                    q[key] = ''
+
+
+def _get_search_resolution(token, signature):
+    if not token:
+        return None
+    cache = _search_resolution_cache()
+    with cache['lock']:
+        item = cache['entries'].get(token)
+        if item is None or time.monotonic() - item['created'] >= _RESOLUTION_TTL:
+            cache['entries'].pop(token, None)
+            if request.args.get('page'):
+                raise ValueError('Saved search results expired. Use Restart smart search to resolve them again.')
+            return None  # An explicit form submission can start a fresh resolution.
+        if item['signature'] != signature:
+            if request.args.get('page'):
+                raise ValueError('Search text or settings changed. Use Restart smart search.')
+            return None
+        return copy.deepcopy(item['result'])
+
+
+def _save_search_resolution(signature, result, generated_fields):
+    cache = _search_resolution_cache()
+    token = secrets.token_urlsafe(24)
+    now = time.monotonic()
+    with cache['lock']:
+        entries = cache['entries']
+        for key in list(entries):
+            if now - entries[key]['created'] >= _RESOLUTION_TTL:
+                entries.pop(key)
+        while len(entries) >= _RESOLUTION_LIMIT:
+            entries.popitem(last=False)
+        entries[token] = {'created': now, 'signature': copy.deepcopy(signature), 'result': copy.deepcopy(result),
+                          'generated_fields': copy.deepcopy(generated_fields)}
+    return token
+
+
+def _resolution_snapshot(result):
+    return SimpleNamespace(**{key: copy.deepcopy(getattr(result, key, default)) for key, default in (
+        ('fields', {}), ('query_groups', []), ('answer', ''), ('iterations', 0),
+        ('elapsed_seconds', 0.0), ('timed_out', False), ('resolution_log', []))})
+
+
 @search_bp.route('/search')
 def search_page():
     # Resolve through the active mounted app. Importing a module named ``app``
@@ -487,7 +608,15 @@ def search_page():
     db = current_app.extensions['thermoml_get_db']()
     q = _search_params()
     action = request.args.get('action', '')
-    page = request.args.get('page', 1, type=int)
+    try:
+        page = int(request.args.get('page', '1'))
+        if page < 1:
+            raise ValueError('page must be a positive integer')
+        for field in ('year_min', 'year_max', 'n_components', 'min_datapoints'):
+            if q[field] and int(q[field]) < 1:
+                raise ValueError(f'{field} must be a positive integer')
+    except ValueError as exc:
+        abort(400, description=str(exc))
 
     # Dropdown data
     journals = [r[0] for r in db.execute(
@@ -579,6 +708,10 @@ def search_page():
 
     # -- Smart search: parse free-text smart_q and merge into q --
     resolution_info = None
+    resolution_groups = []
+    alternatives = None
+    search_error = None
+    search_status = 200
     if q['smart_q'] and action:
         use_argo = q.get('agentic', '') in ('1', 'on', 'true')
         try:
@@ -601,60 +734,66 @@ def search_page():
                 'allow_query_agent': allow_qagent,
                 'agentic_all_fields': agentic_all,
             }
-            if max_wait and str(max_wait).isdigit():
+            if max_wait:
+                if not max_wait.isdigit() or int(max_wait) < 1:
+                    raise ValueError('max_wait_seconds must be a positive integer')
                 align_settings['max_wait_seconds'] = int(max_wait)
 
-            result = alignment_agent_run(q['smart_q'], settings=align_settings)
-            fld = result.fields
-
-            if use_argo:
-                resolution_info = _build_argo_resolution_chips(fld, result)
+            signature = (q['smart_q'], align_settings)
+            _clear_generated_search_fields(q, signature)
+            generated_fields = {}
+            result = _get_search_resolution(q['resolved_search'], signature)
+            fresh = result is None
+            if fresh:
+                if request.args.get('page'):
+                    raise ValueError('Saved search results are unavailable. Use Restart smart search.')
+                try:
+                    result = _resolution_snapshot(alignment_agent_run(q['smart_q'], settings=align_settings))
+                except (ValueError, TimeoutError):
+                    raise
+                except Exception as exc:
+                    raise RuntimeError('The alignment service could not complete the search.') from exc
+            if result.timed_out:
+                raise TimeoutError('Smart search reached its time limit')
+            groups = result.query_groups
+            if len(groups) > 1:
+                alternatives = []
+                for index, group in enumerate(groups, 1):
+                    fld = group['fields']
+                    group_q = _merge_resolved_fields({key: '' for key in q}, fld)
+                    if fld.get('unresolved') or not _has_search_filter(group_q):
+                        raise ValueError(f'OR group {index} could not be fully resolved. Refine that group and search again.')
+                    alternatives.append(group_q)
+                    details = SimpleNamespace(iterations=group.get('iterations', 0),
+                                              elapsed_seconds=group.get('elapsed_seconds', 0.0),
+                                              resolution_log=group.get('resolution_log', []))
+                    chips = (_build_argo_resolution_chips(fld, details) if use_argo
+                             else _build_hardcoded_resolution_chips(fld, details))
+                    resolution_groups.append({'query': group['query'], 'details': chips})
+                # Manual fields remain global filters; OR branches are never flattened into them.
             else:
-                resolution_info = _build_hardcoded_resolution_chips(fld, result)
-
-            # Merge resolved fields into q (only fill empty fields)
-            if fld.get('compounds') and not q['compounds']:
-                q['compounds'] = '; '.join(c['global_id'] for c in fld['compounds'])
-            if fld.get('properties') and not q['property_kw']:
-                q['property_kw'] = '; '.join(p['global_id'] for p in fld['properties'])
-            if fld.get('phases') and not q['phase']:
-                q['phase'] = fld['phases'][0]['global_id']
-            if fld.get('title_keywords') and not q['title']:
-                q['title'] = fld['title_keywords']
-            if fld.get('doi') and not q['doi']:
-                q['doi'] = fld['doi']
-            if fld.get('authors') and not q['authors']:
-                q['authors'] = fld['authors']
-            if fld.get('journal') and not q['journal']:
-                q['journal'] = fld['journal']
-            if fld.get('year_min') and not q['year_min']:
-                q['year_min'] = str(fld['year_min'])
-            if fld.get('year_max') and not q['year_max']:
-                q['year_max'] = str(fld['year_max'])
-            if fld.get('system_type') and not q['system_type']:
-                q['system_type'] = fld['system_type']
-            if fld.get('block_type') and not q['block_type']:
-                q['block_type'] = fld['block_type']
-            if fld.get('n_components') and not q['n_components']:
-                q['n_components'] = str(fld['n_components'])
-            if fld.get('min_datapoints') and not q['min_datapoints']:
-                q['min_datapoints'] = str(fld['min_datapoints'])
-            if fld.get('formula') and not q['formula']:
-                q['formula'] = fld['formula']
-            if fld.get('variables') and not q['var_kw']:
-                q['var_kw'] = '; '.join(v['global_id'] for v in fld['variables'])
-            if fld.get('measurements') and not q['meas_kw']:
-                q['meas_kw'] = '; '.join(m['global_id'] for m in fld['measurements'])
-            if fld.get('constraints') and not q['constr_kw']:
-                q['constr_kw'] = '; '.join(c['global_id'] for c in fld['constraints'])
+                fld = result.fields
+                resolution_info = (_build_argo_resolution_chips(fld, result) if use_argo
+                                   else _build_hardcoded_resolution_chips(fld, result))
+                before_merge = dict(q)
+                _merge_resolved_fields(q, fld)
+                generated_fields = {key: value for key, value in q.items() if value != before_merge[key]}
+            if fresh:
+                q['resolved_search'] = _save_search_resolution(signature, result, generated_fields)
+        except ValueError as exc:
+            search_error = str(exc)
+            search_status = 400
+        except TimeoutError:
+            current_app.logger.warning('Smart search timed out')
+            search_error = 'Smart search reached its time limit. Increase Wait or try again.'
+            search_status = 504
         except Exception:
-            traceback.print_exc()
+            current_app.logger.exception('Smart search failed')
+            search_error = 'Smart search could not complete. Please try again.'
+            search_status = 502
 
     # Check if any non-similarity filter is active
-    has_filter = any(q[k] for k in q if k not in
-                     ('sim_query', 'sim_threshold', 'sim_topk', 'smart_q', 'agentic',
-                      'agentic_limit', 'max_wait_seconds',
-                      'allow_query_agent', 'agentic_all_fields'))
+    has_filter = _has_search_filter(q) or alternatives is not None
 
     results = []
     total = n_papers = total_points = 0
@@ -662,10 +801,10 @@ def search_page():
     count_only = False
     offset = 0
 
-    if has_filter and action:
+    if has_filter and action and not search_error:
         try:
-            select_sql, count_sql, params = _build_search_query(q)
-        except IdentifierRefinementError as exc:
+            select_sql, count_sql, params = _build_search_query(q, alternatives)
+        except ValueError as exc:
             abort(400, description=str(exc))
 
         row = db.execute(count_sql, params).fetchone()
@@ -678,7 +817,7 @@ def search_page():
             offset = (page - 1) * per_page
             total_pages = max(1, (total + per_page - 1) // per_page)
 
-            select_sql += f" ORDER BY bi.n_datapoints DESC LIMIT {per_page} OFFSET {offset}"
+            select_sql += f" ORDER BY bi.n_datapoints DESC, bi.doi, bi.block_type, bi.block_number LIMIT {per_page} OFFSET {offset}"
             rows = db.execute(select_sql, params).fetchall()
 
             for r in rows:
@@ -734,4 +873,8 @@ def search_page():
         offset=offset,
         count_only=count_only,
         resolution_info=resolution_info,
-    )
+        resolution_groups=resolution_groups,
+        search_error=search_error,
+        restart_url=url_for('search.search_page', **{key: value for key, value in q.items()
+                                                   if key != 'resolved_search' and value}, action='search'),
+    ), search_status

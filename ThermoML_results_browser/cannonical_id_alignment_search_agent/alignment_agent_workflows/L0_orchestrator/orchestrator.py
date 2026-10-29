@@ -13,7 +13,8 @@ from __future__ import annotations
 
 import logging
 import sys
-import os
+import tempfile
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -28,9 +29,24 @@ from NIST_ThermoML_agents.general_db_query_engine.general_argo_engine_helpers im
     agent_turn,
     AgentTurnResult,
     with_engine_config,
+    AgentAnchorCollection,
+    anchor,
+    bind_hook,
+    build_agent_lifecycle_bindings,
+    compile_hooks,
 )
 from NIST_ThermoML_agents.general_db_query_engine.general_subagent_skill_schema_and_parser.subworkflow_md_tool_descriptions import (
     build_tool_instructions,
+)
+
+from NIST_ThermoML_agents.general_db_query_engine.general_hooks_management_helpers.general_context_hooks import (
+    _context_hooks_anchors_catalog as ctx_anchor,
+)
+from NIST_ThermoML_agents.general_db_query_engine.general_hooks_management_helpers.general_context_hooks.history_tracking_hooks import HistoryRecorder
+from NIST_ThermoML_agents.general_db_query_engine.general_hooks_management_helpers.general_context_hooks.stats_references_tracking_hooks import StatsRecorder
+from NIST_ThermoML_agents.general_db_query_engine.general_hooks_management_helpers.general_context_hooks.reasoning_token_tracking_hooks import ReasoningTokenTracker
+from NIST_ThermoML_agents.general_db_query_engine.general_tool_management_helpers import (
+    _tool_hooks_anchors_catalog as tool_anchor,
 )
 
 # ── Alignment-agent specifics ──────────────────────────────
@@ -43,6 +59,7 @@ log = logging.getLogger("Alignment-L0")
 
 _HERE = Path(__file__).resolve().parent
 _WORKFLOW_PATH = _HERE / "L0_orchestrator_workflow.md"
+_ALIGNMENT_OUTPUT_ROOT = _RESEARCH_ROOT.parent / "_output" / "Alignment"
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -87,8 +104,7 @@ def run(
     search_text : str
         Raw user search text (e.g. "ethanol + viscosity ; water + density").
     settings : dict, optional
-        Optional settings overrides (not used yet, reserved for future
-        toggles like escalation_enabled).
+        Per-request entry limit, time budget, escalation and field-fill toggles.
 
     Returns
     -------
@@ -108,6 +124,11 @@ def run(
         if isinstance(max_wait, bool) or not isinstance(max_wait, int) or max_wait < 1:
             raise TypeError("settings.max_wait_seconds must be a positive integer")
 
+    allow_qa = settings["allow_query_agent"] if "allow_query_agent" in settings else False
+    agentic_all = settings["agentic_all_fields"] if "agentic_all_fields" in settings else False
+    if not isinstance(allow_qa, bool) or not isinstance(agentic_all, bool):
+        raise TypeError("allow_query_agent and agentic_all_fields must be booleans")
+
     # Reset shared field state for this run
     fields = get_fields()
     fields.reset()
@@ -117,6 +138,8 @@ def run(
 
     # Build tool registry
     tools: Dict[str, Any] = dict(L0_CATALOG.tools)
+    if not allow_qa:
+        tools.pop("escalate_to_query_agent", None)
 
     # Build system prompt
     system_prompt = _load_workflow_prompt()
@@ -141,10 +164,6 @@ def run(
         )
 
     # Escalation & block-filler settings
-    allow_qa = settings["allow_query_agent"] if "allow_query_agent" in settings else False
-    agentic_all = settings["agentic_all_fields"] if "agentic_all_fields" in settings else False
-    if not isinstance(allow_qa, bool) or not isinstance(agentic_all, bool):
-        raise TypeError("allow_query_agent and agentic_all_fields must be booleans")
     if not allow_qa:
         user_message += (
             "\n\nESCALATION DISABLED: Do NOT call escalate_to_query_agent. "
@@ -158,16 +177,57 @@ def run(
             "fill_properties_block to fill each section systematically."
         )
 
-    # Run the ReAct loop
-    memory: list[dict] = []
-    result = agent_turn(
-        user_message,
-        system_prompt=system_prompt,
-        tools=tools,
-        memory=memory,
-        client=client,
-        timeout=max_wait,
-    )
+    # Each run owns its telemetry. Shared lifecycle hooks restore any parent
+    # recorders after completion or failure, including nested agent calls.
+    _ALIGNMENT_OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+    session_dir = Path(tempfile.mkdtemp(
+        prefix=f"run_{datetime.now():%Y%m%d_%H%M%S}_",
+        dir=_ALIGNMENT_OUTPUT_ROOT,
+    ))
+    history, stats, reasoning = HistoryRecorder(), StatsRecorder(), ReasoningTokenTracker()
+    anchors = AgentAnchorCollection()
+    bindings = list(build_agent_lifecycle_bindings(
+        history=history, stats=stats, reasoning=reasoning, anchors=anchors,
+    ))
+    bindings.extend((
+        bind_hook(reasoning.log_reasoning_from_response,
+                  ctx_anchor.SYNC_LLM_RESPONSE_AFTER.anchor_type,
+                  ctx_anchor.SYNC_COMPACTION_GUIDANCE_RESPONSE.anchor_type),
+        bind_hook(stats.log_tool_result, tool_anchor.SYNC_TOOL_RESULT_RECORDED.anchor_type),
+        bind_hook(history.log_tool_call, tool_anchor.SYNC_TOOL_CALL_RECORDED.anchor_type),
+        bind_hook(history.log_error, tool_anchor.SYNC_TOOL_ERROR_RECORDED.anchor_type),
+        bind_hook(history.log_purpose_tasks_error,
+                  tool_anchor.SYNC_TOOL_PURPOSE_ERROR_RECORDED.anchor_type),
+        bind_hook(history.log_stage_compaction,
+                  tool_anchor.SYNC_STAGE_COMPACTION_RECORDED.anchor_type),
+        bind_hook(history.log_compaction,
+                  ctx_anchor.SYNC_COMPACTION_RECORDED.anchor_type,
+                  ctx_anchor.SYNC_COMPACTION_SKIPPED.anchor_type),
+        bind_hook(stats.log_compaction,
+                  ctx_anchor.SYNC_COMPACTION_STATS_RECORDED.anchor_type,
+                  ctx_anchor.SYNC_COMPACTION_SKIPPED.anchor_type),
+    ))
+    hooks = compile_hooks(bindings)
+    status = "ERROR"
+    try:
+        anchor(anchors.start_tracking, hooks, agent="alignment-agent", prompt=search_text,
+               history_out_path=session_dir / "run_history.md",
+               stats_out_path=session_dir / "reference_stats.md",
+               reasoning_out_path=session_dir / "reasoning_tokens_stripped.md")
+        result = agent_turn(
+            user_message,
+            system_prompt=system_prompt,
+            tools=tools,
+            memory=[],
+            client=client,
+            timeout=max_wait,
+            hooks=hooks,
+        )
+        result.session_dir = str(session_dir)
+        status = "TIMEOUT" if result.timed_out else "OK"
+    finally:
+        anchor(anchors.finalize_tracking, hooks, status=status,
+               stats_path=session_dir / "reference_stats.md")
 
     log.info(
         "Alignment L0 done: %d iterations, %.1fs, timed_out=%s",

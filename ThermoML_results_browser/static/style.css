@@ -245,6 +245,17 @@ body {
 }
 .badge-sm { font-size: 0.68rem; padding: 0.2em 0.45em; }
 
+/* Benchmark question table: its own scroll box, so both scrollbars stay in view */
+.benchmark-table-scroll {
+  max-height: 60vh;
+  overflow: auto;
+}
+.benchmark-table-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
 /* Detail panel sections */
 .detail-section { display: none; }
 .detail-section.active { display: block; }

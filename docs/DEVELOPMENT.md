@@ -10,7 +10,9 @@ python -m pip install -r requirements.txt
 
 The source is a Python workspace rather than a native-code build. Import checks,
 syntax checks, and browser smoke checks are relevant local checks. Database
-builders and live agent prompt runners are separate operations.
+builders and live agent prompt runners are separate operations. Database ZIP
+packaging uses `scripts/package_databases.py` and the original hashes in
+`docs/RELEASE_ASSETS.json`; it is separate from normal startup preparation.
 
 Check browser imports and registered routes from the project root:
 
@@ -18,9 +20,17 @@ Check browser imports and registered routes from the project root:
 python -B -c "from ThermoML_results_browser.app import app; print(app.url_map)"
 ```
 
-This imports the application without launching agents or starting a server. Use
+Application startup prepares missing large databases from the included ZIP
+chunks and uses receipts for unchanged verified files. To run that preparation
+explicitly, use `python database_archives.py`. It restores original bytes and
+does not run database builders. Receipts and the startup lock are local files
+under `.database_cache/`.
+
+The import check does not launch agents or start a server. Use
 `python launch_thermoml_browser.py` to inspect local pages and saved ZIP-backed
-sessions.
+sessions. In benchmark history, check the table's scrollbars and sticky headers,
+then select a saved answer with evaluation records and exercise its Eval switch,
+highlights, and sidebar. An answer without those records should keep Eval disabled.
 
 Check Python syntax without creating bytecode caches:
 

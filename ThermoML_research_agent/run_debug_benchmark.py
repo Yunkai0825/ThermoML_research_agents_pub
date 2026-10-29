@@ -45,11 +45,12 @@ RESUME_TS = None
 BENCHMARK_ROOT = WORKSPACE_ROOT.parent / "_benchmark"
 TS = RESUME_TS or dt.datetime.now().strftime("%Y%m%d_%H%M%S")
 
-# Main: retain the selected 17-case cohort, excluding 1.1.1, 1.1.3, 1.2.3, 1.2.4.
-# The ambiguous-outcome ethanol/water prompt was renumbered from 3.4 to 4.4.
+# Main: retain the selected 17-case cohort, excluding 1.1.1, 1.1.3, 1.2.3, 1.2.4
+# and the appended examples 1.1.5, 3.7, 4.5 under the current prompt numbering.
 MAIN_IDS = ["1.1.2", "1.1.4", "1.2.1", "1.2.2",
-            "2.1", "2.2", "2.3", "2.4", "2.5", "2.6",
-            "3.1", "3.2", "3.3", "4.1", "4.2", "4.3", "4.4"]
+            "2.1", "2.2", "2.3",
+            "3.1", "3.2", "3.3", "3.4", "3.5", "3.6",
+            "4.1", "4.2", "4.3", "4.4"]
 
 # (agent, run_tests module, explicit IDs [] = all, workers, gap seconds)
 JOBS = [

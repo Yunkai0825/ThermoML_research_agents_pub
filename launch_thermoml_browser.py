@@ -12,6 +12,8 @@ import webbrowser
 from werkzeug.serving import ThreadedWSGIServer
 
 _DEFAULT_PORT = 5000
+_DATABASES_PREPARED = False
+_EVAL_STATS_PREPARED = False
 _WORKSPACE = Path(__file__).resolve().parent
 if str(_WORKSPACE) not in sys.path:
     sys.path.insert(0, str(_WORKSPACE))
@@ -28,11 +30,16 @@ class _LocalServer(ThreadedWSGIServer):
 
 
 def _make_server(port: int):
-    from ThermoML_results_browser.app import app
-    return _LocalServer("127.0.0.1", port, app)
+    import ThermoML_results_browser.app as browser_module
+    if _DATABASES_PREPARED:
+        browser_module._DATABASES_PREPARED = True
+    if _EVAL_STATS_PREPARED:
+        browser_module._EVAL_STATS_PREPARED = True
+    return _LocalServer("127.0.0.1", port, browser_module.app)
 
 
 def main(argv: list[str] | None = None) -> int:
+    global _DATABASES_PREPARED, _EVAL_STATS_PREPARED
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=None,
                         help="Explicit port, or 0 for any available port; defaults to 5000 with fallback")
@@ -41,6 +48,22 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.port is not None and not 0 <= args.port <= 65535:
         parser.error("--port must be between 0 and 65535")
+
+    from database_archives import DatabaseArchiveError, ensure_databases
+    try:
+        ensure_databases(_WORKSPACE, progress=lambda message: print(message, flush=True))
+        _DATABASES_PREPARED = True
+    except (DatabaseArchiveError, OSError) as exc:
+        print(f"Database preparation failed: {exc}", flush=True)
+        return 1
+
+    from eval_stats_archives import EvalStatsArchiveError, ensure_eval_stats
+    try:
+        ensure_eval_stats(_WORKSPACE, progress=lambda message: print(message, flush=True))
+        _EVAL_STATS_PREPARED = True
+    except (EvalStatsArchiveError, OSError) as exc:
+        print(f"Statistics preparation failed: {exc}", flush=True)
+        return 1
 
     try:
         server = _make_server(_DEFAULT_PORT if args.port is None else args.port)

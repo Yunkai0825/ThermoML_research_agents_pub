@@ -7,13 +7,19 @@ artifacts provide the context for inspecting an answer.
 
 ## Start locally
 
-Clone or download the repository, then download the seven original files from
-[the `workspace-20260918` release](https://github.com/Yunkai0825/ThermoML_research_agents_pub/releases/tag/workspace-20260918)
-and place them at the exact paths in [installation](docs/INSTALLATION.md#download-the-release-assets).
-A Git clone or source-code ZIP alone does not include those seven files. Keep the
-benchmark archives as ZIPs; the browser reads them directly.
+A complete Git clone or source-code ZIP includes all required database payloads;
+no separate release download or Git LFS setup is needed. The browser launcher
+reconstructs the five large databases from [`_database_archives/`](_database_archives/manifest.json)
+on first use, verifies their original bytes, and then starts the server.
+Later launches use a local verification receipt and file statistics to avoid
+reassembling or hashing unchanged databases. See [installation](docs/INSTALLATION.md#prepare-the-databases).
 
-After placing the assets, run from this folder (`ThermoML_research_agents_pub`):
+Benchmark run ZIPs stay compressed: the browser reads their results and saved
+evaluations directly. The evaluation-statistics and workflow package in
+`_benchmark/_eval_stats/eval_stats.zip` is extracted automatically on first
+launch. See [benchmarks](docs/BENCHMARKS.md) for the Eval controls and statistics.
+
+Run from this folder (`ThermoML_research_agents_pub`):
 
 ```shell
 python -m pip install -r requirements.txt
@@ -35,6 +41,8 @@ server's provider configuration described in [installation](docs/INSTALLATION.md
 ```text
 ThermoML_research_agents_pub/
 ├── launch_thermoml_browser.py
+├── database_archives.py            # Prepare the original database files
+├── _database_archives/             # Database chunk ZIPs and reconstruction manifest
 ├── ThermoML_results_browser/       # Browser application and analysis tools
 ├── ThermoML_research_agent/         # Agent framework, search tools and databases
 ├── _benchmark/                     # Main, Query and Analysis benchmark artifacts
@@ -44,7 +52,9 @@ ThermoML_research_agents_pub/
 
 Freeform sessions use `_output/{Main,Query,Analysis}` for everyone. Historical
 Main sessions in `_output/freeform_runs.zip` remain browsable without extraction.
-Benchmark output uses `_benchmark/{Main,Query,Analysis}`. Components declare these paths relative
+Saved benchmark archives use full-capability and ablation folders under
+`_benchmark/{Main,Query,Analysis}`. The unchanged runners write their existing
+run directories beneath those agent roots. Components declare these paths relative
 to their source files; there is no output-routing module. Explicit API session
 paths and benchmark output arguments remain available.
 
@@ -57,8 +67,10 @@ scientific validation, and artifact path checks remain part of the application.
 - [Installation and provider configuration](docs/INSTALLATION.md)
 - [Browser and Python API usage](docs/USAGE.md)
 - [Data inventory and provenance](docs/DATA.md)
-- [Release asset sizes and SHA-256 checksums](docs/RELEASE_ASSETS.json)
+- [Database archive manifest](_database_archives/manifest.json)
+- [Original database hashes and legacy release provenance](docs/RELEASE_ASSETS.json)
 - [Benchmark commands and recorded outputs](docs/BENCHMARKS.md)
+- [Evaluation statistics and reproducible workflow (ZIP)](_benchmark/_eval_stats/eval_stats.zip)
 - [Development and local validation](docs/DEVELOPMENT.md)
 - [Publication policy and no-pointer checks](docs/PUBLISHING.md)
 - [Workspace architecture](MASTER_ARCHITECTURE.md)
@@ -69,5 +81,5 @@ scientific validation, and artifact path checks remain part of the application.
 
 The software uses the [MIT license](LICENSE). Keep the [third-party data notice](NOTICE)
 with the NIST-derived data. [CITATION.cff](CITATION.cff) retains the manuscript,
-authors, and data citations from the published project. The `workspace-20260918` tag identifies this workspace publication; no new
-paper DOI is assigned by that tag.
+authors, and data citations from the published project. The `v1.0.0(R)` tag identifies this revised software publication.
+Software archive DOIs are separate from the manuscript DOI.

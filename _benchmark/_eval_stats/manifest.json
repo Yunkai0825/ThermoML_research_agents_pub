@@ -1,0 +1,697 @@
+{
+  "archives": [
+    {
+      "bytes": 1471837,
+      "path": "eval_stats.zip",
+      "sha256": "624ffed334fbf57ff0a26802f737a5d33c7d2f0dbcf152f13ecbdc06fcba4799"
+    }
+  ],
+  "files": [
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 35033,
+      "path": "eval_stats.py",
+      "sha256": "08e6357c8bf8beeda4ce8dfd31425f8a47db1f9b9450937822d8e73c607f2140"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 4020,
+      "path": "eval_workflow/reproduce-evidence-evaluation/assets/run-contract.template.json",
+      "sha256": "b8f48d9aacfd7d01725a446a7e76e272ca846cd33094b80260a6b033eddb0c60"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 6572,
+      "path": "eval_workflow/reproduce-evidence-evaluation/modes/indiv_recon/workflow_indiv_recon.md",
+      "sha256": "2e6fc39eb6794cc0ab402ed9e61939466b8ab33a42ac62ccc600ba76cc0dfcc7"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 7393,
+      "path": "eval_workflow/reproduce-evidence-evaluation/modes/merged_recon/workflow_merged_recon.md",
+      "sha256": "4884a33ffd839799361fe97e9bd0d7b5115646ccc0729ea0af9fea24d49660ee"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 8943,
+      "path": "eval_workflow/reproduce-evidence-evaluation/references/blind-inputs.md",
+      "sha256": "7d9b934895d6b631f49ff1a92e6ea27b3615059f9cfe79f3eb7f58a2a1616de0"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 7738,
+      "path": "eval_workflow/reproduce-evidence-evaluation/references/build-pipeline.md",
+      "sha256": "45c0aadd2b724ef6cf8b9900e6c10f2153376352e01d4b87d3e956a8cb1c58e6"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 4613,
+      "path": "eval_workflow/reproduce-evidence-evaluation/references/decision-rules.md",
+      "sha256": "918cfc0b95555613460717d810f49cee99c50e09b8655f07e3a8a375bf5e62cc"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 6585,
+      "path": "eval_workflow/reproduce-evidence-evaluation/references/dispatch-contracts.md",
+      "sha256": "444bc71912e7b362c114148f7569d4b6eed85da47c86998ea5a24cbe4fddc217"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 7555,
+      "path": "eval_workflow/reproduce-evidence-evaluation/references/execution.md",
+      "sha256": "e3709ec2f01bcd51d6c023481a30e64744d42c08af9607d09835655fcb056fc4"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 6417,
+      "path": "eval_workflow/reproduce-evidence-evaluation/references/intake.md",
+      "sha256": "b588b5c81d7ead37f0b4a643a279a5ffaa0951899c95009d23ae1ab8c0cdd45a"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 3061,
+      "path": "eval_workflow/reproduce-evidence-evaluation/references/numerical-precision.md",
+      "sha256": "b5e7feadfee617ee7cbbadc00bd3ab3464c9e16404f35360bc548fa3aa6507b1"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 3872,
+      "path": "eval_workflow/reproduce-evidence-evaluation/references/orchestrator-guidance.md",
+      "sha256": "494dd859faf41bebd9dc671f3729864d7b6b7d9b5d35ed288baea5b360f1c49d"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 3388,
+      "path": "eval_workflow/reproduce-evidence-evaluation/references/runtime-layout.md",
+      "sha256": "a50ba9b03ac6f39e64c81468885afd3ee9f2b2fdaabd4998ed79a5030ff0c1fc"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 5339,
+      "path": "eval_workflow/reproduce-evidence-evaluation/references/source-profile-contract.md",
+      "sha256": "660ec3c1107e34909aab8b7dc82ae131cb3488440632581a04b57a9f55e7f937"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 8973,
+      "path": "eval_workflow/reproduce-evidence-evaluation/references/stage-contracts.md",
+      "sha256": "bccdaadbd990dead4ec1a2c1c288761e163b7b162688bd1ffb7db6bf3d90d4c0"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 3819,
+      "path": "eval_workflow/reproduce-evidence-evaluation/SKILL.md",
+      "sha256": "5f6afe8364b524d0712ef96a1a73656bed6d3562f8359a99f295bfc5c3bdfe63"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 8695,
+      "path": "eval_workflow/reproduce-evidence-evaluation/templates/artifact-corrector.system.md",
+      "sha256": "020e4445358eb67f80f2fd3ec5ef9275f581cf42aa78597d95b3d7b7ef7bf46a"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 588,
+      "path": "eval_workflow/reproduce-evidence-evaluation/templates/artifact-corrector.task.md",
+      "sha256": "217e995e657f97d429be7304553534d5d3317ee0cb12af6347edcc15250ef481"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 9665,
+      "path": "eval_workflow/reproduce-evidence-evaluation/templates/common.system.md",
+      "sha256": "dc86d97e5e44019db5a22715e29d8e27497b63e932d8b654958f7460441669af"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 8437,
+      "path": "eval_workflow/reproduce-evidence-evaluation/templates/numerical-reviewer.system.md",
+      "sha256": "4f38b33263d859c0ec4f74b40f578b4498b33d4d35598479a00b657327f4c0b1"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 2843,
+      "path": "eval_workflow/reproduce-evidence-evaluation/templates/numerical-reviewer.task.md",
+      "sha256": "2d082ac251ad95c3b1a9ab7ad2ea549712cbc0eea133b4d992bd839e321c1c71"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 10150,
+      "path": "eval_workflow/reproduce-evidence-evaluation/templates/orchestrator.system.md",
+      "sha256": "8048752f7f63bc242b3ffbb3cd496448bcca9f005476b408b2f04389bfc942b9"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 917,
+      "path": "eval_workflow/reproduce-evidence-evaluation/templates/orchestrator.task.md",
+      "sha256": "d9cf30db4a3d871b163dd1494d05c0b367dc53e7c337015fab540a22cac57dbb"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 9779,
+      "path": "eval_workflow/reproduce-evidence-evaluation/templates/reconciler.system.md",
+      "sha256": "373275f9ef8bc31071922c9e3ea5be23d43cad9a37ca09496a2f0a79e9387719"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 1175,
+      "path": "eval_workflow/reproduce-evidence-evaluation/templates/reconciler.task.md",
+      "sha256": "a43f2eed382b0071d4387d6c8aea1347e25c66b0673cf7130aca5634ec943d02"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 1296,
+      "path": "eval_workflow/reproduce-evidence-evaluation/templates/scientific-reviewer.system.md",
+      "sha256": "359e639196ff1f96df17e27b54dc60d8a94b2f0c0ab8e0f8c313bda395a5c341"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 1981,
+      "path": "eval_workflow/reproduce-evidence-evaluation/templates/scientific-reviewer.task.md",
+      "sha256": "82ca9b23284e5bedbd57ee078955fa92973f66d234314f991d42139f5c38ef4e"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 34678,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/instructions/MAPPING.md",
+      "sha256": "475a735cb113d65bd425c9b0a713de3f2e84b8a2cac528a9f20b9a3d11728810"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 2956,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/instructions/METHODS.md",
+      "sha256": "53d032c75bba2cf5bcb338760208ab6adc0cae8b4be7838f474fb2d40211d537"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 12482,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/instructions/QUALITY_CHECKS.txt",
+      "sha256": "551d3813b51555b0c3a06dec7ea1411587f2ce19ce92c6c71914bc1d2c9e6a67"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 13118,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/instructions/RUBRIC.txt",
+      "sha256": "e0a19b37b2cf01003947c48878c536ba5f344d214f0b5b803782294d2ddc51ad"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 7119,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/instructions/SCREEN_RULES.txt",
+      "sha256": "f188932b96a5ef45975833ffd2d05f21d1480103c4fd1ec4d67a005124f802c2"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 1559,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/method-decisions.json",
+      "sha256": "f961f5fea48150c69a71268d10e74e2b5c7efae0acd825c0e92ac17941fe310c"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 3683,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/prepare_artifacts.py",
+      "sha256": "bec534685d532ff261287c8b5d4d1b62086b1a4ab9b15af05d796a70ae700e03"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 11070,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/profile.md",
+      "sha256": "684beefd81b96667ef8bccd4ad639b677d403969866ff5dbfc502f66b5860ab6"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 7753,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/publication.md",
+      "sha256": "fb3b8f3c2ac93e31f417d42e45bbba5302a9d26c842ccf784f40672a2c5ac97c"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 11662,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/source_tools_contract.md",
+      "sha256": "227eada5154f00e6aaff9672ebd0fd2b709ab773b6e0e289eaa51d7887c135fb"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 8053,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/templates/Analysis.system.md",
+      "sha256": "72b04aafbd5bbe6d46a708e390d67f22804ce1d4068c8f3b7dfa0e66de3ef630"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 8051,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/templates/Main.system.md",
+      "sha256": "44aca35ccb63171feecc5c49ad6e4f0bc7b2b398df0afac1f44ec2468502a0e1"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 4681,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/templates/Query.system.md",
+      "sha256": "95432342e62134876d5aaf1d3fa816d6edee27b6b104a26f2006d8e68a0a749d"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 4178,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/ACCEPTED_PIPELINE.md",
+      "sha256": "30432a2f87fb86fa030d6be9e07b2452088af8ecc1eeb4a48c6cdb31c1f502fe"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 17963,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/accepted_pipeline.py",
+      "sha256": "60c9e997dd037c2431a1b8465ff6bfdbc5fbfdc0dbef0480e2abe588d1bfdede"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 21624,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/accepted_stats.py",
+      "sha256": "97b56e4d90acfc5f24b422dcdc35f62cdaad45edbbbf4aec97e74e83483e19a5"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 3936,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/artifact_preparation_gate.py",
+      "sha256": "7ea989d12800bd4aa736438b0f118698242d09a05420b02108731007704084b4"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 26144,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/artifact_source.py",
+      "sha256": "ad99d1a3b67fd9abc34467831f47e88a6b51e6b93833070eddb8a52b2051daad"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 4210,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/CACHE_COMPATIBILITY.md",
+      "sha256": "c50f99f83db05b75626880884f945d8ce4dc9ab0b2e2ddc963847d766660c166"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 6114,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/cache_compatibility.py",
+      "sha256": "e853cffda863173ad85b2caeb60eddc8fc7f9f132d14d9d6a0cf317fe0537430"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 40961,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/canonical_export.py",
+      "sha256": "99665cc379fec685d45097a0ea618185d7110143999a6d77b3b557848c002a9d"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 3595,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/compare_core.py",
+      "sha256": "5e9bcc3ebd18569df051323c02a09e63191b957afee133349a5fc2f9d81d2bee"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 21785,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/correct_artifacts.py",
+      "sha256": "a5d6fca290a5c162ccba1d427d3e14c1df8860ffe136de1d4df973a0ca702381"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 17414,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/CORRECTION_SCHEMA.md",
+      "sha256": "7b0a2bb6ba7c3f3880fe254b68a411eaa036fd16a5858aa750e413b095c03d8d"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 15943,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/curve_reference.py",
+      "sha256": "c193d3fa07feb53df25c505ef375244319f1c6c4bb0fccb4dcdd4b6f74ef07a0"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 38372,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/dispatch.py",
+      "sha256": "1774ebfbf5bbd0498e8379c85354185e047c4330be303eaed50b77fd8a267eb7"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 4049,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/dispatch_contract.md",
+      "sha256": "efb1092e44b976426269b72de0dd1c19adde86871bf9b9f7e63a1726bca8eb08"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 38419,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/enrich_run_history.py",
+      "sha256": "5655670ebad0822dff786a092945b01b0c9e0c93a3f65c83e980399b0bd5cd93"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 446,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/examples/pipeline_artifacts/density_arguments.json",
+      "sha256": "16ef59f3c5aa4421aea2306137618c8174073a0710d3814e44815a65ad3d9472"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 281,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/examples/pipeline_artifacts/density_fit_summ.csv",
+      "sha256": "7aa25e312d116c1963a72daddbfae2096769c1f92b72e603e1ba9671b433e9d1"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 840,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/examples/pipeline_artifacts/density_fixed_metadata.txt",
+      "sha256": "e0ed999f171ddcabe5b76a14bf5be3b2bc670615f84d5c1389ea1648aca63218"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 899,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/examples/pipeline_artifacts/density_tool_return.txt",
+      "sha256": "86473d5d28fb934d82af8c4a118d8930f002effd9ec3802066e136d74aa5a586"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 394,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/examples/pipeline_artifacts/main_arguments.json",
+      "sha256": "4300805a503c43fc15135fd99cc9beeeaa27613a1a20f34acd3b2eb16c1d9bf5"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 219,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/examples/pipeline_artifacts/main_fit_summ.csv",
+      "sha256": "27a3e0ac3fc6c198fa1773b4fdbf883509d4e64c95ef3e3ca5547ed803c78191"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 768,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/examples/pipeline_artifacts/main_fixed_metadata.txt",
+      "sha256": "1de3eb00dbb76f1355d148d153f5d559964035e7528eb95f6bd797de4efbad74"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 889,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/examples/pipeline_artifacts/main_tool_return.txt",
+      "sha256": "3cec04b259d32e2f9bfcbb9d49e52b3b0e0a1475f954dbe7c517ecc005c5db35"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 2209,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/examples/pipeline_artifacts/provenance.json",
+      "sha256": "9a92c802484b2132f30f5fc69ba508d8d2ccd87dacf920069535357882b41c0c"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 2088,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/examples/reconciliation.fixture.json",
+      "sha256": "e11efde48ea50f7be7429e215e6ada5c9bd383f136c453a9608cf7504248af42"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 420,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/filesystem_paths.py",
+      "sha256": "2ea553d0ef59b622f01c0cc804727a0e8ab51d6aa7766df6ff49bfef6067ae43"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 4802,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/fitting_precision.py",
+      "sha256": "9379fdd1d52dad52645c160d1822ebf807c05bb518e5e74057fe8477d8030de6"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 4661,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/GROUP_CONTRACT.md",
+      "sha256": "368eb8ce43c781d36f3c609fc89da1f018312ea699dc4dc48dd75c31c9efb036"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 25093,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/group_contract.py",
+      "sha256": "16cb8abb93fe80a4bd167546b7e6be2a7686d7eb70edc5d05f9c067be5072687"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 8629,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/INITIAL_REVIEW_SCHEMA.md",
+      "sha256": "140c849e088d99590a8660cdc510755ffcc5f9eb2fe7fecc233ce00b0ec28c03"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 10189,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/INTERFACE.md",
+      "sha256": "1326c12901de5c06ac52baeca4d96d276411fd90a374fee67a6e8f42af9be6a8"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 4144,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/native_tool_returns.py",
+      "sha256": "eeec05540a314ea066ac39d9ef40481370ab4e7d5c5b114f82f5dc887b802a84"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 32920,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/packet.py",
+      "sha256": "f32267c46860673961f69c400c41618b7f86e7dcfe90027b5748ddc9c321bda5"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 19142,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/PIPELINE_ARTIFACT_SCHEMA.md",
+      "sha256": "bc851687ef3317723cc83cccbe9151ceaf823634f1ad5ec3704fc1784141bce3"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 2334,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/precision_publication.py",
+      "sha256": "45f05e8f47268a066638f3543aec2754cebf52a2924b3888e25478fa7abadd6c"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 27326,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/prepare_correction.py",
+      "sha256": "af0d7e03cd490429b843c2c0109bb606849f3cf10dd8b574c48453d4e4dcb8c8"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 8966,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/provisional_export.py",
+      "sha256": "cf7f798845b0c7892706d116fc564860a08a80d116d87356e1992dfe761c7316"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 10687,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/reapply_fitting_precision.py",
+      "sha256": "ee42f4e6da64f988c757c91a99fbb55601dce94230106c3fb710b7443b29db9b"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 11517,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/rebind_artifacts.py",
+      "sha256": "9a81f43a62e53989f5661b2641ef66d5e0a29286bd1ed6f01cd7b836c1671adf"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 14234,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/RECONCILIATION_SCHEMA.md",
+      "sha256": "7dc905901702438c2fe7f07a90313a4a6e8844376d638abd1fcf3c349c814ddb"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 89932,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/resolve_numbers.py",
+      "sha256": "9b577cfcbd314f7683dbfe614e65180bfbd1099f37717d213b803862fb56a881"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 37010,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/review_contract.py",
+      "sha256": "3861e1ca958d4a85fd5ac91c668d2158fad0196d5bb0817f87433c147979d9c9"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 2411,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/run_settings.py",
+      "sha256": "36798748255966b2404d3f4a0c0754d917232cd0b13cb4e7564f49cf4a633c19"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 594,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/runtime_location.py",
+      "sha256": "5f73b634149ff84a7a85acab6bf6fd027b00113f192414d19dd89d9b03f8f680"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 16438,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/sanitize_answer.py",
+      "sha256": "a66e68dc1cd639d337abb1d3c6890b6c0643846e4286a0a56aebdf1eb9a75a6c"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 7681,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/scientific_export.py",
+      "sha256": "e94ac4968a9feafb87310c9256ebbb9db054ea4d756917592b6de3a318f0c534"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 2217,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/SCIENTIFIC_REVIEW_SCHEMA.md",
+      "sha256": "59559819c0e7b552cffe14e67b2bc7e0995f366465a535faa777d0bbb6975805"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 9216,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/screen.py",
+      "sha256": "8cbe5d2f766b5a1d932b4ad36b0f4925e352140e0d9fc0f25f208d2272b42fed"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 10740,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/test_curve_reference.py",
+      "sha256": "2a7c0c1498810d6fca071d8d965787e97880b90b559125eb53782e46e6b7d2c2"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 5961,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/test_fitting_precision.py",
+      "sha256": "36d7d300b928840d3945ea934c1a351a64aa12cfb72fb3106822d4b0e9b82078"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 37260,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/test_pipeline_artifacts.py",
+      "sha256": "6c80e579434865ec3e3611f4142d619567f37a257d967fe141dadcf50b1fa687"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 5094,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/test_population_interpretation.py",
+      "sha256": "1c50f16ab98b54ec7bf674c5ae0f32a396ec4ae785d1691e27d96b90f94cfe47"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 17004,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/test_preparation_boundaries.py",
+      "sha256": "ba6a0499519d78c07098e011e0ff5552bafb083a275b9c4c7cfca22ee71e5df6"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 4356,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/test_prepare_artifacts.py",
+      "sha256": "6351bc33ad8d6af67e6f9182104d9007eab88433015eb286a4da15afbdaecbe9"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 31269,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/tml.py",
+      "sha256": "b1d79fb03f6feacfd97ebd9113dda04febebd877775ed264d3e9796ed685db50"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 5188,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/tokenize_numbers.py",
+      "sha256": "72aec2dc1b2b3f693c53ce7317b7ec09f9677bb3224a5db9c2627047c90203b9"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 5217,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/tools/worker_slots.py",
+      "sha256": "43dcfd80bad469ff77c56bb735aeddf2ab388b317d4db4ac55f2a908dab32f17"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 90627,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/user-interpretations.json",
+      "sha256": "eba783f2b3e09c77840ba573ebfe14ad594cf4dc435a9ce25db183f72b9ca910"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 78898,
+      "path": "eval_workflow/reproduce-evidence-evaluation/ThermoML/user-interpretations.md",
+      "sha256": "7523886807a54bb3210e4f78bc406aac660059b57045aeb812be5979a25a0342"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 21080,
+      "path": "numeric_outcomes/Analysis__ablation-no_ledger.csv",
+      "sha256": "b488cf05c5fa1230a56112a745e79697516ed7e24498379d19565489c6779f11"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 133060,
+      "path": "numeric_outcomes/Analysis__ablation-no_ledger.png",
+      "sha256": "0c5e101002e176cdcc97fa9ef1dcef6ac965b5fb011be7d91cbb3f4e5fbd431f"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 19383,
+      "path": "numeric_outcomes/Analysis__full_capability.csv",
+      "sha256": "d5083cb8f46b4c5554912af63990a197a1f909a92ddcc2346087d91b0e89a2f3"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 141457,
+      "path": "numeric_outcomes/Analysis__full_capability.png",
+      "sha256": "3d5ad5be924552948bb1ef7d9c32ceac905576f166064f3826e4a998f6b0c885"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 21672,
+      "path": "numeric_outcomes/Main__ablation-no_ledger.csv",
+      "sha256": "c9848bf253a9166c6fdbeb977c330874ace3b8f08097c0c53ed498dd47d41b7d"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 140783,
+      "path": "numeric_outcomes/Main__ablation-no_ledger.png",
+      "sha256": "a4c44f1480ca67ca2f3d6602f84d4c0cbe46cc3f58dffac8739f295e5372a9dd"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 20957,
+      "path": "numeric_outcomes/Main__full_capability.csv",
+      "sha256": "48265ce4d13b55ba84a34e3cfa17122bd9eefe72d629e9815710f378555f0575"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 143967,
+      "path": "numeric_outcomes/Main__full_capability.png",
+      "sha256": "50342d846ba8979a73a33c279edaafbd090ceb542a1c1a189fe8c7f4e5274b63"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 44223,
+      "path": "numeric_outcomes/Query__ablation-no_ledger.csv",
+      "sha256": "14312c5861d390b85d41cf1ed4079dc0fa5e683578c48e1bfb18229499f168af"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 219743,
+      "path": "numeric_outcomes/Query__ablation-no_ledger.png",
+      "sha256": "184b54f145a4e638b30d75660401ff719fabc9a9e7b0c02e66abde77cae0ae74"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 25799,
+      "path": "numeric_outcomes/Query__full_capability.csv",
+      "sha256": "77e76380df4878a58228b3918fc5310f675362e8f326715dabdee8f33c02796d"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 156708,
+      "path": "numeric_outcomes/Query__full_capability.png",
+      "sha256": "d7936a76f2fc72e280a5639ef3ff5d74e789aa29c81f862ee4674a88855f3dc4"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 4201,
+      "path": "numeric_outcomes/summary.csv",
+      "sha256": "72c331bcc1f70315ed7194a15b7c19af16fcfefd8dc7c75357c7ac4f151ff74a"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 324855,
+      "path": "numeric_outcomes/summary.png",
+      "sha256": "326c7e0ee5bab8cfb8ea24047b7f6a320eae77a1ee3259bebda5bea185975bd8"
+    },
+    {
+      "archive": "eval_stats.zip",
+      "bytes": 47301,
+      "path": "selection.json",
+      "sha256": "00aa6773299022a9d68fd51c8e3f75cf3261bddebb42e04e49fc802f69993541"
+    }
+  ],
+  "max_archive_bytes": 100000000,
+  "schema_version": 1
+}

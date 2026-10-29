@@ -898,7 +898,8 @@ def _is_session_directory_name(name: str) -> bool:
 def _stored_run_directories(directory) -> list:
     """List ordinary run folders and read-only ZIPs without extraction."""
     entries = list(directory.iterdir())
-    directories = [entry for entry in entries if entry.is_dir()]
+    directories = [entry for entry in entries
+                   if entry.is_dir() and not entry.is_symlink()]
     folder_names = {entry.name for entry in directories}
     archives = []
     if not isinstance(directory, ZipPath):
@@ -930,6 +931,69 @@ def _run_directory_child(root, name):
     except (OSError, ValueError, BadZipFile):
         return None
     return None
+
+
+def _is_benchmark_collection(path: Path) -> bool:
+    """True for a folder that holds benchmark answers itself: per-prompt
+    ``Q*`` folders, flat ``Q*_result.md`` files or ``TEST_TRACE*.json``
+    manifests, whatever the folder is called."""
+    try:
+        for child in path.iterdir():
+            name = child.name
+            if child.is_dir():
+                if re.match(r"Q\d", name) and not _is_session_directory_name(name):
+                    return True
+            elif ((name.startswith("TEST_TRACE") and name.endswith(".json"))
+                  or re.fullmatch(r"Q[^_]+_result\.md", name)):
+                return True
+    except OSError:
+        pass
+    return False
+
+
+def _benchmark_answer_parents(folder: Path, depth: int = 0) -> list[Path]:
+    """Folders at any depth below a benchmark root that directly hold run
+    sessions or answer collections, shallowest first. Sessions, ``Q*``
+    answers, any folder holding result.md (an answer: its workers are not
+    answers) and ``_``/``.`` folders are never descended into."""
+    try:
+        children = sorted(
+            child for child in _stored_run_directories(folder)
+            if child.is_dir() and not child.is_symlink()
+            and not child.name.startswith(("_", ".")))
+    except OSError:
+        return []
+    holds, nested = False, []
+    for child in children:
+        if _is_session_directory_name(child.name):
+            holds = True
+        elif re.match(r"Q\d", child.name) or (child / "result.md").is_file():
+            continue
+        else:
+            if _is_benchmark_collection(child):
+                holds = True
+            if depth < 8:
+                nested.extend(_benchmark_answer_parents(child, depth + 1))
+    return ([folder] if holds and depth else []) + nested
+
+
+# One page load or answer click asks for the roots several times; walking a
+# network share each time is slow, so a walk is reused for a few seconds.
+_ANSWER_ROOTS_CACHE: dict = {}
+_ANSWER_ROOTS_TTL = 10.0
+
+
+def _benchmark_answer_roots(folder: Path) -> list[Path]:
+    """``_benchmark_answer_parents`` of one benchmark root, reused for
+    ``_ANSWER_ROOTS_TTL`` seconds."""
+    key = path_identity(folder)
+    now = time.monotonic()
+    hit = _ANSWER_ROOTS_CACHE.get(key)
+    if hit and now - hit[0] < _ANSWER_ROOTS_TTL:
+        return list(hit[1])
+    found = _benchmark_answer_parents(folder)
+    _ANSWER_ROOTS_CACHE[key] = (now, found)
+    return list(found)
 
 
 def _scan_roots(agent_type: str, scope: str = "all") -> list[dict]:
@@ -967,18 +1031,22 @@ def _scan_roots(agent_type: str, scope: str = "all") -> list[dict]:
             _add(_REPO_ROOT / "_output", False, False, "Shared", "user")
     if scope in {"all", "benchmark"}:
         _add(BENCHMARK_OUTPUT_DIRS[agent_type], True, False, "Benchmark", "benchmark")
-    # Benchmark campaigns and ZIP collections contain session folders at
-    # their root. Freeform ZIPs are browsable beside new ordinary sessions;
-    # ordinary sibling agent directories are never mixed into Main history.
+    # Walk nested campaigns and multipart ZIPs as read-only directories.
+    # Stop at answer/session folders so workers are never indexed as answers.
     for src in list(roots):
+        if src["scope"] == "benchmark":
+            for sub in _benchmark_answer_roots(src["path"]):
+                _add(sub, True, False,
+                     f"{src['bucket']}/{sub.relative_to(src['path']).as_posix()}",
+                     "benchmark")
+            continue
+        # Freeform archives keep the existing shared output behavior.
         try:
             subs = _stored_run_directories(src["path"])
         except OSError:
             continue
         for sub in subs:
-            if src["scope"] == "user" and not isinstance(sub, ZipPath):
-                continue
-            if _is_session_directory_name(sub.name):
+            if not isinstance(sub, ZipPath) or _is_session_directory_name(sub.name):
                 continue
             try:
                 has_runs = any(c.is_dir() and _is_session_directory_name(c.name)
@@ -986,8 +1054,7 @@ def _scan_roots(agent_type: str, scope: str = "all") -> list[dict]:
             except OSError:
                 continue
             if has_runs:
-                _add(sub, True, False,
-                     f"{src['bucket']}/{sub.name}", src["scope"])
+                _add(sub, True, False, f"{src['bucket']}/{sub.name}", "user")
     return roots
 
 
@@ -1186,7 +1253,7 @@ def _benchmark_mode(collection: Path) -> str:
             ("test_run_only_sql_rawdb_", "sql_raw"),
             ("test_run_only_sql_", "sql_parsed"),
         ):
-            if name.startswith(prefix):
+            if name == prefix.rstrip("_") or name.startswith(prefix):
                 return mode
     return "full_framework"
 
@@ -1251,7 +1318,8 @@ def list_benchmark_questions(agent_type: str) -> tuple[list[dict], dict]:
         try:
             batches = sorted(
                 (path for path in _stored_run_directories(src["path"])
-                 if path.name.startswith("test_run_")),
+                 if not _is_session_directory_name(path.name)
+                 and _is_benchmark_collection(path)),
                 key=lambda path: path.name,
                 reverse=True,
             )
@@ -1461,7 +1529,7 @@ def list_benchmark_questions(agent_type: str) -> tuple[list[dict], dict]:
                 "prompt_text": "",
                 "executions": [],
             })
-            if row["executions"]:
+            if (batch_dir.name, question_id) in traced_questions:
                 continue
             execution_key = (question_id, batch_dir.name, sub_run or "")
             if execution_key in seen_executions:
@@ -1566,13 +1634,14 @@ def _find_benchmark_trace_record(agent_type: str, dir_name: str,
     prompt_table = _benchmark_prompt_table(agent_type)
     for src in _scan_roots(agent_type, scope="benchmark"):
         try:
-            if safe_dir.startswith("test_run_"):
+            if safe_sub:
                 candidate = _run_directory_child(src["path"], safe_dir)
                 candidates = [candidate] if candidate is not None else []
             else:
                 candidates = sorted(
                     (path for path in _stored_run_directories(src["path"])
-                     if path.name.startswith("test_run_")),
+                     if not _is_session_directory_name(path.name)
+                     and _is_benchmark_collection(path)),
                     key=lambda path: path.name,
                     reverse=True,
                 )
@@ -1596,7 +1665,7 @@ def _find_benchmark_trace_record(agent_type: str, dir_name: str,
                 for record in records:
                     if not isinstance(record, dict):
                         continue
-                    if safe_dir.startswith("test_run_"):
+                    if safe_sub:
                         if safe_sub and _trace_question_id(record, prompt_table) == safe_sub:
                             return record, trace_path
                     elif _trace_session_leaf(record) == safe_dir:

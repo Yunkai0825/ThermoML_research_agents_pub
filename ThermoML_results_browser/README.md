@@ -13,6 +13,15 @@ python -m pip install -r requirements.txt
 python launch_thermoml_browser.py
 ```
 
+The complete checkout includes the database payloads in `_database_archives/`.
+Before opening the browser, the launcher reconstructs missing large databases
+from ordered ZIP byte chunks, verifies their original sizes and hashes, and
+installs them atomically. Later launches use `.database_cache/` receipts and file
+statistics to skip unchanged verified files. No release download or Git LFS
+setup is needed. Use `python database_archives.py` to prepare the files explicitly.
+An existing differing database is preserved; review and move it aside manually
+before rerunning preparation.
+
 The launcher opens the URL it prints in your default browser. It tries port 5000
 and selects another free port if that port is occupied. An explicit occupied
 `--port` fails instead of opening a different application. Use `--port 0` for any
@@ -27,7 +36,9 @@ Keep this package beside `ThermoML_research_agent/`. The supplied index is
 `ThermoML_research_agent/card_databases_storage/ThermoML_index.db`; archived
 JSON/XML comes from
 `ThermoML_research_agent/ThermoML.v2020-09-30.db/thermoml_raw_corpus.db`.
-Startup uses those databases as read-only files and does not rebuild them.
+After preparing the original database files, startup opens them read-only and
+does not run database builders. Database ZIP chunks require reassembly; benchmark
+ZIPs below are read directly and stay compressed.
 
 ## Local features and model access
 
@@ -38,6 +49,17 @@ Configure the launching process with `ARGO_API_USER` and, when needed,
 `ARGO_API_URL`. These are provider settings, not browser accounts.
 Setting `ANTHROPIC_API_KEY` does not switch this browser to Anthropic; the separate
 benchmark launcher owns that optional adapter.
+
+Smart Search uses `+` for AND and `;` between complete OR queries, for example
+`ethanol + density ; methanol + viscosity`. Each group is resolved independently
+in deterministic or Agentic mode. Detailed filters apply to every OR group;
+semicolon-separated compounds and entity keywords within a detailed field use
+AND logic. A block and its data points count once even if several groups match.
+The Wait budget is shared across groups; in-flight provider calls and Query
+postprocessing may finish after it. Pagination reuses the
+resolved groups for 30 minutes without another provider call; after expiry or a
+server restart, use **Restart smart search**. Changing smart text or settings
+starts a new resolution, while manual detailed-filter edits reuse the groups.
 
 Every visitor can inspect raw JSON, full logs, tool histories, working memory,
 reasoning, statistics, and saved workflow figures. There are no browser login or
@@ -62,13 +84,24 @@ A ZIP named after one run may instead contain that run's files at its root.
 Archived sessions and new ordinary folders are listed together; an ordinary
 folder takes precedence when it shares a run name with an archive. ZIP contents
 are read-only, while new runs continue to write ordinary folders in `_output`.
-Closing a tab does not delete output. `_benchmark/{Main,Query,Analysis}` supplies read-only
-benchmark history. Collections may be directories or ZIP files; the browser reads
-ZIP members directly without extracting them. Full-framework runs are stored in
-`test_run_ledgered_20260905.zip`, and no-ledger runs in
-`test_run_no_ledger_20260905.zip` within each agent directory. Run folders sit at
-the archive root. Query's additional mode collections retain their names with a
-`.zip` extension. Each agent keeps its own tab and mode columns.
+Closing a tab does not delete output. `_benchmark/{Main,Query,Analysis}` supplies
+read-only benchmark history. Full-capability and ablation collections live in
+`test_run_full_capability/` and `test_run_ablation/` under each agent. The browser
+discovers their ordinary ZIP parts and retained nested campaign directories,
+while also supporting ordinary collection folders. Each ZIP is independently
+readable and below 100,000,000 bytes; see the
+[archive manifest](../_benchmark/ARCHIVES.json) for exact membership and hashes.
+Each agent keeps its own tab and mode columns, in a table with vertical and
+horizontal scrolling and sticky headers.
+
+Results and saved evaluations are read directly from ZIP members without
+extraction: `result.md`, `eval/evaluation.json`, and `eval/claim_review.json`.
+The Result panel's **Eval** switch starts on when a saved numerical validation
+or claim review is available, and is disabled otherwise. It overlays claim
+categories and numerical outcomes on the answer. Select a highlight to inspect
+its review, compared values, source evidence, and related DOI/block links in
+the sidebar; switch Eval off for plain answer text. This reads existing records
+without running an evaluation or contacting a model provider.
 Renamed examples use `Q<current prompt ID>_run_<YYYYMMDD_HHMMSS>`; a six-digit
 microsecond suffix distinguishes timestamp collisions. The browser uses a valid
 current ID in the folder name for grouping and retains the question text and
@@ -90,6 +123,7 @@ history; `scope=benchmark` selects benchmark records.
 | `/agents/launch` (POST) | Start a model request |
 | `/agents/status/<run_id>` and `/agents/stream/<run_id>` | Polling and SSE output |
 | `/agents/detail/<agent_type>/<dir_name>` | Saved result, history, memory, and artifacts |
+| `/agents/eval/<agent_type>/<dir_name>` | Saved numerical validation, claim review, and evaluated source lines |
 | `/agents/workflow/<agent_type>/<dir_name>/<filename>` | Saved workflow figure or table |
 | `/analysis` | Local analysis workbench |
 
@@ -107,9 +141,10 @@ python -m pip install -r requirements.txt
 python -B -c "from ThermoML_results_browser.app import app; print(app.url_map)"
 ```
 
-This does not launch model requests or rebuild databases. The current checkout
-has no standalone browser regression suite. The [development guide](../docs/DEVELOPMENT.md)
-lists the included offline checks; [publication instructions](../docs/PUBLISHING.md)
-describe the no-pointer checks for local Git objects.
+These checks do not launch model requests or rebuild databases. The
+[development guide](../docs/DEVELOPMENT.md) describes syntax checks and manual
+browser checks for saved answers, evaluation highlights, and history controls.
+[Publication instructions](../docs/PUBLISHING.md) describe the no-pointer checks
+for local Git objects.
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the component boundaries.

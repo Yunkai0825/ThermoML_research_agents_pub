@@ -7,6 +7,7 @@ message: >-
   that published research using ThermoML data also cite the two works listed
   under "references".
 type: software
+version: "v1.0.0(R)"
 title: ThermoML Agents
 authors:
   - family-names: Sun
@@ -39,8 +40,8 @@ authors:
     affiliation: >-
       Center for Steel Electrification by Electrosynthesis and Chemical Sciences
       and Engineering Division, Argonne National Laboratory, Lemont, IL 60439, USA
-repository-code: https://github.com/Yunkai0825/ThermoML_agents_pub
-url: https://github.com/Yunkai0825/ThermoML_agents_pub
+repository-code: https://github.com/Yunkai0825/ThermoML_research_agents_pub
+url: https://github.com/Yunkai0825/ThermoML_research_agents_pub
 license: MIT
 abstract: >-
   A local ThermoML database browser and Main, Query, and Analysis agents for

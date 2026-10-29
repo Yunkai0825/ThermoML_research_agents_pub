@@ -14,6 +14,7 @@
     </h4>
 
     <form method="get" action="{{ url_for('search.search_page') }}" id="searchForm">
+      <input type="hidden" name="resolved_search" value="{{ q.resolved_search }}">
 
       {# ── Smart Search (agentic free-text) ── #}
       <div class="card search-panel mb-2">
@@ -30,12 +31,12 @@
                 <i class="bi bi-search smart-bar-icon-sm"></i>
                 <input type="text" class="form-control form-control-sm smart-bar-input-sm" name="smart_q"
                        value="{{ q.smart_q }}"
-                       placeholder="ethanol + viscosity + binary ; water + density 2010-2020"
+                       placeholder="ethanol + viscosity ; water + density"
                        autocomplete="off" spellcheck="false">
               </div>
             </div>
             <div class="d-flex align-items-center gap-2 mb-1">
-              <span class="smart-bar-hints"><code>+</code>=AND &nbsp;<code>;</code>=OR</span>
+              <span class="smart-bar-hints"><code>+</code>=AND &nbsp; <code>;</code>=OR</span>
               <div class="ms-auto d-flex align-items-center gap-2">
                 <div class="d-flex align-items-center gap-1" id="agenticSettingsGroup"
                      style="display: none !important">
@@ -49,7 +50,7 @@
                     <option value="all" {{ 'selected' if q.agentic_limit == 'all' }}>All</option>
                   </select>
                   <label for="maxWaitSeconds" class="form-label mb-0 ms-1" style="font-size:0.68rem;white-space:nowrap"
-                         title="Max seconds the agent is allowed to run">Wait:</label>
+                         title="Total time budget shared by all smart-search groups">Wait:</label>
                   <select class="form-select form-select-sm py-0" id="maxWaitSeconds" name="max_wait_seconds"
                           style="font-size:0.68rem;width:auto;min-width:60px">
                     <option value="30" {{ 'selected' if q.max_wait_seconds == '30' }}>30s</option>
@@ -70,7 +71,7 @@
             </div>
 
             {# ── Resolution chips (resolved + unresolved IDs) ── #}
-            {% if resolution_info %}
+            {% macro render_resolution(resolution_info) %}
             <div class="resolution-inline mt-1">
               {% if resolution_info.argo_iterations is defined %}
               <div class="text-muted mb-1" style="font-size:0.65rem">
@@ -107,11 +108,26 @@
               </details>
               {% endif %}
             </div>
+            {% endmacro %}
+            {% if resolution_groups %}
+              {% for group in resolution_groups %}
+                {% if not loop.first %}<div class="small fw-bold mt-1">OR</div>{% endif %}
+                <div class="border rounded p-1 mt-1">
+                  <div class="small fw-semibold">Group {{ loop.index }}: {{ group.query }}</div>
+                  {{ render_resolution(group.details) }}
+                </div>
+              {% endfor %}
+            {% elif resolution_info %}
+              {{ render_resolution(resolution_info) }}
             {% endif %}
 
             <div class="form-text" style="font-size:0.68em">
               Type freely — compounds, properties, methods, years. The parser resolves
               canonical IDs automatically. Toggle <strong>Agentic</strong> for natural-language queries.
+              Separate complete queries with <code>;</code>; detailed filters apply to every OR group.
+              Wait is shared across groups; in-flight provider calls and Query postprocessing may finish after it.
+              Pagination reuses resolved groups for 30 minutes;
+              after expiry or a server restart, submit the search again.
             </div>
           </div>
         </div>
@@ -289,6 +305,9 @@
               <label class="form-label form-label-sm mb-0">Property</label>
               <select class="form-select form-select-sm" name="property">
                 <option value="">Any</option>
+                {% if q.property and q.property not in (top_properties|map(attribute=0)|list) %}
+                <option value="{{ q.property }}" selected>{{ q.property }}</option>
+                {% endif %}
                 {% for p in top_properties %}
                 <option value="{{ p[0] }}" {{ 'selected' if q.property == p[0] }}>{{ p[0] }} ({{ "{:,}".format(p[1]) }})</option>
                 {% endfor %}
@@ -304,6 +323,9 @@
                 <label class="form-label form-label-sm mb-0">Phase</label>
                 <select class="form-select form-select-sm" name="phase">
                   <option value="">Any</option>
+                  {% if q.phase and q.phase not in phases %}
+                  <option value="{{ q.phase }}" selected>{{ q.phase }}</option>
+                  {% endif %}
                   {% for ph in phases %}
                   <option value="{{ ph }}" {{ 'selected' if q.phase == ph }}>{{ ph }}</option>
                   {% endfor %}
@@ -336,6 +358,9 @@
               <label class="form-label form-label-sm mb-0">Variable</label>
               <select class="form-select form-select-sm" name="variable">
                 <option value="">Any</option>
+                {% if q.variable and q.variable not in (top_variables|map(attribute=0)|list) %}
+                <option value="{{ q.variable }}" selected>{{ q.variable }}</option>
+                {% endif %}
                 {% for v in top_variables %}
                 <option value="{{ v[0] }}" {{ 'selected' if q.variable == v[0] }}>{{ v[0] }} ({{ "{:,}".format(v[1]) }})</option>
                 {% endfor %}
@@ -365,6 +390,9 @@
               <label class="form-label form-label-sm mb-0">Method</label>
               <select class="form-select form-select-sm" name="measurement">
                 <option value="">Any</option>
+                {% if q.measurement and q.measurement not in (top_measurements|map(attribute=0)|list) %}
+                <option value="{{ q.measurement }}" selected>{{ q.measurement }}</option>
+                {% endif %}
                 {% for m in top_measurements %}
                 <option value="{{ m[0] }}" {{ 'selected' if q.measurement == m[0] }}>{{ m[0] }} ({{ "{:,}".format(m[1]) }})</option>
                 {% endfor %}
@@ -394,6 +422,9 @@
               <label class="form-label form-label-sm mb-0">Constraint</label>
               <select class="form-select form-select-sm" name="constraint">
                 <option value="">Any</option>
+                {% if q.constraint and q.constraint not in (top_constraints|map(attribute=0)|list) %}
+                <option value="{{ q.constraint }}" selected>{{ q.constraint }}</option>
+                {% endif %}
                 {% for c in top_constraints %}
                 <option value="{{ c[0] }}" {{ 'selected' if q.constraint == c[0] }}>{{ c[0] }} ({{ "{:,}".format(c[1]) }})</option>
                 {% endfor %}
@@ -444,6 +475,11 @@
      RIGHT PANEL — Results
      ═══════════════════════════════════════════════════════════════════════ #}
   <div class="col-lg-8">
+    {% if search_error %}
+      <div class="alert alert-danger" role="alert">{{ search_error }}
+        {% if q.smart_q %}<a class="alert-link" href="{{ restart_url }}">Restart smart search</a>{% endif %}
+      </div>
+    {% endif %}
     {% if count_only %}
       <div class="alert alert-info">
         <strong>{{ "{:,}".format(total) }}</strong> blocks match your query
@@ -560,7 +596,9 @@
       {# ── Pagination ── #}
       {% if total_pages > 1 %}
       {% macro page_url(pg) %}{{ url_for('search.search_page',
-          smart_q=q.smart_q, agentic=q.agentic, agentic_limit=q.agentic_limit,
+          smart_q=q.smart_q, resolved_search=q.resolved_search, agentic=q.agentic, agentic_limit=q.agentic_limit,
+          max_wait_seconds=q.max_wait_seconds, allow_query_agent=q.allow_query_agent,
+          agentic_all_fields=q.agentic_all_fields,
           doi=q.doi, authors=q.authors, title=q.title, journal=q.journal,
           year_min=q.year_min, year_max=q.year_max,
           compounds=q.compounds, formula=q.formula,
@@ -600,7 +638,7 @@
       </nav>
       {% endif %}
 
-    {% elif not count_only and not sim_results and request.args.get('action') %}
+    {% elif not search_error and not count_only and not sim_results and request.args.get('action') %}
       <div class="alert alert-warning">
         No results found. Try broadening your search criteria.
       </div>

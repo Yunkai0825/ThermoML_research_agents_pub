@@ -18,13 +18,6 @@
       "download_url": "https://github.com/Yunkai0825/ThermoML_research_agents_pub/releases/download/workspace-20260918/PCS_INDIV.db"
     },
     {
-      "asset_name": "Main_test_run_ledgered_20260905.zip",
-      "repository_path": "_benchmark/Main/test_run_ledgered_20260905.zip",
-      "bytes": 498160772,
-      "sha256": "dd06bfd504c2a55232574e43f8293f0b41ac8fb9dd0dd7dca3fb03d049cde84c",
-      "download_url": "https://github.com/Yunkai0825/ThermoML_research_agents_pub/releases/download/workspace-20260918/Main_test_run_ledgered_20260905.zip"
-    },
-    {
       "asset_name": "PureOrMixtureData_registry.db",
       "repository_path": "ThermoML_research_agent/card_databases_storage/PureOrMixtureData_registry.db",
       "bytes": 491024384,
@@ -44,13 +37,6 @@
       "bytes": 388104192,
       "sha256": "c7f8f8c8e6cd9933f79bc07a667dffade1e636114894501245a4f7f9a7a7c34f",
       "download_url": "https://github.com/Yunkai0825/ThermoML_research_agents_pub/releases/download/workspace-20260918/thermoml_raw_corpus.db"
-    },
-    {
-      "asset_name": "Analysis_test_run_ledgered_20260905.zip",
-      "repository_path": "_benchmark/Analysis/test_run_ledgered_20260905.zip",
-      "bytes": 163740616,
-      "sha256": "633c6a07f8eea8a2f94afad4783c7fe4bdc19920aca46561cb41cf5e168c90a0",
-      "download_url": "https://github.com/Yunkai0825/ThermoML_research_agents_pub/releases/download/workspace-20260918/Analysis_test_run_ledgered_20260905.zip"
     }
   ]
 }

@@ -1,5 +1,5 @@
 # Repository-local generated files and machine settings only.
-# Source and saved outputs are published; seven large originals use release assets.
+# Source, database ZIP payloads, and saved outputs are published in Git.
 
 # Python caches and local build products
 __pycache__/
@@ -35,15 +35,28 @@ desktop.ini
 
 # Temporary workspace checks and SQLite runtime sidecars
 /__tmp__/
+/.database_cache/
 *.db-shm
 *.db-wal
 
-# Original files published as GitHub Release assets (approved; no LFS).
-# Exact paths and SHA-256 checksums: docs/RELEASE_ASSETS.json.
+# Generated database files reconstructed from the ZIP payloads committed in Git.
+# Exact paths and SHA-256 checksums: _database_archives/manifest.json.
 /ThermoML_research_agent/ThermoML.v2020-09-30.db/thermoml_raw.db
 /ThermoML_research_agent/card_databases_storage/Individual_cards_dbs/PCS_INDIV.db
-/_benchmark/Main/test_run_ledgered_20260905.zip
 /ThermoML_research_agent/card_databases_storage/PureOrMixtureData_registry.db
 /ThermoML_research_agent/card_databases_storage/ThermoML_index.db
 /ThermoML_research_agent/ThermoML.v2020-09-30.db/thermoml_raw_corpus.db
-/_benchmark/Analysis/test_run_ledgered_20260905.zip
+
+# Incomplete temporary files from interrupted database preparation.
+/ThermoML_research_agent/ThermoML.v2020-09-30.db/.thermoml_raw.db.*.assembling
+/ThermoML_research_agent/card_databases_storage/Individual_cards_dbs/.PCS_INDIV.db.*.assembling
+/ThermoML_research_agent/card_databases_storage/.PureOrMixtureData_registry.db.*.assembling
+/ThermoML_research_agent/card_databases_storage/.ThermoML_index.db.*.assembling
+/ThermoML_research_agent/ThermoML.v2020-09-30.db/.thermoml_raw_corpus.db.*.assembling
+
+# Statistics/workflow files restored from _benchmark/_eval_stats/eval_stats.zip.
+/.eval_stats_cache/
+/_benchmark/_eval_stats/eval_stats.py
+/_benchmark/_eval_stats/selection.json
+/_benchmark/_eval_stats/eval_workflow/
+/_benchmark/_eval_stats/numeric_outcomes/

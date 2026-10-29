@@ -58,7 +58,7 @@
         </span>
       </div>
       {% if benchmark_rows %}
-      <div class="table-responsive">
+      <div class="table-responsive benchmark-table-scroll">
         <table class="table table-sm table-striped align-middle mb-0">
           <thead class="table-dark">
             <tr>
@@ -212,7 +212,21 @@
           
         </ul>
 
-        <div class="detail-section active" data-section="result"><div class="card"><div class="card-body rendered-md result-md"></div></div></div>
+        <div class="detail-section active" data-section="result">
+          <div class="card result-card">
+            <div class="card-header py-2 d-flex align-items-center gap-2">
+              <span><i class="bi bi-file-earmark-text"></i> Result</span>
+              <div class="form-check form-switch ms-auto mb-0 eval-switch-wrap" title="No evaluation for this answer">
+                <input class="form-check-input eval-switch" type="checkbox" role="switch" id="evalSwitch" disabled>
+                <label class="form-check-label fw-semibold" for="evalSwitch">Eval</label>
+              </div>
+            </div>
+            <div class="row g-0 result-eval-layout" tabindex="0" aria-label="Answer and evaluation">
+              <div class="col result-answer"><div class="card-body rendered-md result-md"></div></div>
+              <div class="col-lg-4 border-start eval-side d-none"></div>
+            </div>
+          </div>
+        </div>
         
         <div class="detail-section" data-section="history"><div class="card"><div class="card-body rendered-md history-md"></div></div></div>
         
@@ -268,6 +282,8 @@
 <script src="{{ url_for('static', filename='result_panel_toggles.js') }}"></script>
 <script src="{{ url_for('static', filename='thermoml_id_links.js') }}"></script>
 <script src="{{ url_for('static', filename='workflow_panel.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='answer_eval_view.css') }}">
+<script src="{{ url_for('static', filename='answer_eval_view.js') }}"></script>
 <script>
 (function () {
   'use strict';
@@ -303,16 +319,33 @@
     return url;
   }
 
+  function evalUrl(dirName, subRun) {
+    let url = '/agents/eval/' + encodeURIComponent(agentType) + '/' + encodeURIComponent(dirName) +
+      '?scope=' + encodeURIComponent(scope);
+    if (subRun) url += '&sub_run=' + encodeURIComponent(subRun);
+    return url;
+  }
+
+  // The Result card: the answer, and its saved evaluation under the Eval switch.
+  const evalView = window.ThermoMLAnswerEval.create(panel.querySelector('.result-card'), {
+    renderMd: renderMd,
+    linkify: function (element) { ThermoIDLinks.linkify(element); }
+  });
+
+  // Only the latest load may draw: a slower answer for an earlier click is dropped.
+  let loadSeq = 0;
   function loadDetail(dirName, subRun) {
+    const seq = ++loadSeq;
     panel.dataset.dir = dirName;
     panel.dataset.subRun = subRun || '';
     panel.querySelector('.detail-placeholder').classList.add('d-none');
     panel.querySelector('.detail-content').classList.remove('d-none');
+    evalView.show('', null);
     panel.querySelector('.result-md').innerHTML = '<p class="text-muted">Loading…</p>';
     fetch(detailUrl(dirName, subRun)).then(function (response) { return response.json(); }).then(function (data) {
+      if (seq !== loadSeq) return;
       if (data.error) throw new Error(data.error);
-      panel.querySelector('.result-md').innerHTML = renderMd(data.result_md);
-      ThermoIDLinks.linkify(panel.querySelector('.result-md'));
+      evalView.show(data.result_md, null);
       const history = panel.querySelector('.history-md');
       if (history && data.history_md) { history.innerHTML = renderMd(data.history_md); ThermoIDLinks.linkify(history); }
       const memory = panel.querySelector('.memory-md');
@@ -358,6 +391,13 @@
         return;
       }
 
+      // The answer's saved evaluation (its eval/ folder) is drawn over the same result once it arrives.
+      fetch(evalUrl(dirName, subRun)).then(function (response) { return response.ok ? response.json() : null; })
+        .then(function (evaluation) {
+          if (seq !== loadSeq) return;
+          if (evaluation && (evaluation.numbers || evaluation.claims)) evalView.show(data.result_md, evaluation);
+        }).catch(function () {});
+
       const csvSelect = panel.querySelector('.csv-select');
       csvSelect.innerHTML = '<option value="">— select CSV —</option>';
       (data.csv_files || []).forEach(function (name) {
@@ -387,6 +427,7 @@
       });
       detailSections.ensureVisible('result');
     }).catch(function (error) {
+      if (seq !== loadSeq) return;
       panel.querySelector('.result-md').innerHTML = '<div class="alert alert-danger"></div>';
       panel.querySelector('.result-md .alert').textContent = error.message;
     });

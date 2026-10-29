@@ -19,6 +19,7 @@ from flask import (
 
 from ThermoML_results_browser import agent_runner
 from ThermoML_results_browser.helpers.benchmark_zip import ZipPath, is_within
+from ThermoML_results_browser.helpers.answer_eval import load_answer_eval
 from ThermoML_results_browser.helpers.sqlite_readonly import connect_readonly
 from ThermoML_raw_json_to_card_db_parsers.id_schema import (
     GLOBAL_PREFIX_BY_FIELD,
@@ -448,6 +449,36 @@ def agents_run_detail(agent_type, dir_name):
     if "error" in data:
         return jsonify(data), 404
     return jsonify(data)
+
+
+@agent_bp.route('/agents/eval/<agent_type>/<dir_name>')
+def agents_run_eval(agent_type, dir_name):
+    """Return the saved evaluation in a run's eval/ folder for the Eval switch.
+
+    The eval files place their highlights on the answer folder's own
+    result.md, so an answer shown from another file (a flat Q*_result.md or a
+    newer result_R<n>.md) has none.
+    """
+    if agent_type not in agent_runner.AGENT_OUTPUT_DIRS:
+        return jsonify(error="Unknown agent type"), 400
+    scope = _run_scope(request.args.get('scope'), default='all')
+    sub_run = request.args.get('sub_run') or ''
+    if (dir_name in ('.', '..') or sub_run in ('.', '..')
+            or '/' in sub_run or '\\' in sub_run
+            or ':' in sub_run or '\x00' in sub_run):
+        abort(404)
+    answer_dir = agent_runner.resolve_run_dir(agent_type, dir_name, scope=scope)
+    if answer_dir is None:
+        abort(404)
+    if sub_run:
+        nested = answer_dir / sub_run
+        if not is_within(nested, answer_dir):
+            abort(404)
+        answer_dir = nested
+    if (not (answer_dir / 'result.md').is_file()
+            or agent_runner._latest_result_md_path(answer_dir).name != 'result.md'):
+        return jsonify(numbers=None, claims=None, lines={})
+    return jsonify(load_answer_eval(answer_dir))
 
 
 @agent_bp.route('/agents/delete/<agent_type>/<dir_name>', methods=['POST'])

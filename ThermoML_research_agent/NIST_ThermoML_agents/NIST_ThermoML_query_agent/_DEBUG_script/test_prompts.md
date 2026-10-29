@@ -27,6 +27,8 @@ is exercised implicitly throughout all sections.
 | 1.4 | Have activity coefficients been measured for aqueous lithium chloride near 25 °C, and over what concentration range? |
 | 1.5 | How has the viscosity of pure liquid ethanol near 25 °C been measured, and what values were reported by the different methods? |
 | 1.6 | What is the measured isobaric heat capacity of pure liquid water at 25 °C and atmospheric pressure? |
+| 1.7 | Using ThermoML, report the surface tension of 1-butyl-3-methylimidazolium tetrafluoroborate ([C4mim][BF4]) at or near 298.15 K from every source, each with its reported expanded uncertainty and block identifier, and say whether the sources agree within those uncertainties. |
+| 1.8 | What critical temperature, critical pressure and critical density of 1,1,1,2-tetrafluoroethane (R134a) does ThermoML hold? Give each value with its reported uncertainty and source, and say whether the sources are independent determinations. |
 
 ---
 
@@ -96,9 +98,10 @@ alternatives — it never silently guesses or fails.
 
 ## 6 — Impossible / Out-of-Scope
 
-No valid answer exists in the database. A genuine pass = a clean
-"not found / out of scope" with zero fabricated values and zero
-external-source citations. 6.4 directly probes the no-external-sources
+The requested primary target is unavailable or out of scope. A genuine pass
+states that limit without fabricated values or external-source citations.
+When a prompt explicitly asks about related archive data, report that
+archive-supported fallback. 6.4 directly probes the no-external-sources
 guardrail.
 
 | # | Prompt |
@@ -107,3 +110,4 @@ guardrail.
 | 6.2 | What is the Gibbs free energy of formation for diamond at 1000 K? |
 | 6.3 | What is the viscosity of ethanol + water mixtures at 2000 K? |
 | 6.4 | I need the density of pure liquid DMSO at 25 °C for a calculation. If ThermoML does not contain it, use an accepted value from another source. |
+| 6.5 | Does ThermoML contain Joule–Thomson coefficients for methane? If so, report them with their uncertainties and conditions; if not, say what Joule–Thomson data the archive does hold. |

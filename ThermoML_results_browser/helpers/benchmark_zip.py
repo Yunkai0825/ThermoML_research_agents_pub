@@ -223,6 +223,11 @@ class ZipPath:
         except FileNotFoundError:
             return False
 
+    def is_symlink(self) -> bool:
+        # Archive indexing rejects symlink members before exposing any paths.
+        self._index()
+        return False
+
     def iterdir(self) -> Iterator[ZipPath]:
         index = self._index()
         if self.member not in index.directories:

@@ -2,35 +2,87 @@
 
 [Documentation home](../README.md) · [Development](DEVELOPMENT.md)
 
-Benchmarks write under project-root `_benchmark/{Main,Query,Analysis}`.
-Freeform sessions write under `_output`; the browser lists these separately.
-Existing benchmark ZIPs contain migrated records, not new evaluation results.
-The browser reads the archives directly without extracting files. Within each
-agent directory, `test_run_ledgered_20260905.zip` stores full-framework runs and
-`test_run_no_ledger_20260905.zip` stores no-ledger runs. Query's additional mode
-collections retain their collection names with a `.zip` extension. Each agent
-keeps its own browser tab and mode columns.
+The saved benchmark collections are distributed in Git as ordinary ZIP files
+under project-root `_benchmark/`. They contain existing local run artifacts;
+repackaging them does not produce new evaluation results. Freeform sessions
+remain under `_output/`.
 
-The Main and Analysis full-framework ZIPs are distributed as unchanged
-[release assets](INSTALLATION.md#download-the-release-assets). Download
-`Main_test_run_ledgered_20260905.zip` and `Analysis_test_run_ledgered_20260905.zip`,
-then place them as `test_run_ledgered_20260905.zip` under `_benchmark/Main/` and
-`_benchmark/Analysis/`, respectively. Their asset prefixes prevent filename
-collisions and do not change their contents. Keep them compressed. The remaining
-supplied benchmark ZIPs are stored directly in Git.
+## Archive layout
 
-## Example folder names
+Each agent separates full-capability and ablation collections:
 
-Run folders sit directly at the ZIP root. Saved Main and Analysis examples use
-`Q<id>_run_<YYYYMMDD_HHMMSS>`, for example `Q5.4_run_20260905_120350`. IDs follow the current prompt catalog. The short
-timestamp distinguishes repeated examples, and the old random hash is omitted.
-Query campaign examples use `Q<id>` or a prompt ID followed by a run timestamp.
-Archived collection contents retain their saved filenames.
+```text
+_benchmark/
+├── ARCHIVES.json
+├── Main/
+│   ├── test_run_full_capability/
+│   │   └── <collection>[__partNN__<first>--<last>].zip
+│   └── test_run_ablation/
+│       └── <collection>[__partNN__<first>--<last>].zip
+├── Query/
+│   ├── test_run_full_capability/
+│   │   └── <collection>[__partNN__<first>--<last>].zip
+│   └── test_run_ablation/
+│       └── <collection>[__partNN__<first>--<last>].zip
+└── Analysis/
+    ├── test_run_full_capability/
+    │   └── <collection>[__partNN__<first>--<last>].zip
+    └── test_run_ablation/
+        └── <collection>[__partNN__<first>--<last>].zip
+```
 
-The folders themselves carry the current benchmark IDs, and the browser reads
-those names directly. Historical prompt text and recorded IDs remain inside the
-run artifacts. Two older synthetic-compound error tests use earlier prompt
-wording: Main `4.1` and Analysis `6.2` originally asked about unobtainium.
+A collection that fits in one file keeps `<collection>.zip`. Larger collections
+use names such as
+`<collection>__part01__Q<id>_run_<timestamp>--Q<id>_run_<timestamp>.zip`.
+The two boundary names identify the first and last examples in that part;
+slashes in nested example paths become underscores in the filename. Exact
+membership is recorded in the manifest rather than inferred from a range.
+
+Every archive is smaller than **100,000,000 bytes** and is independently
+readable by an ordinary ZIP reader. These are separate ZIP archives, so no
+concatenation or split-volume utility is required. Each example is kept whole
+within one part, with its saved file contents and source-relative member paths
+preserved. The source collection directory itself is omitted from ZIP member paths; nested campaign and example directories remain intact. Collection-level shared metadata is repeated in each part.
+
+[`_benchmark/ARCHIVES.json`](../_benchmark/ARCHIVES.json) is the schema-version-1
+archive manifest. Its `max_archive_bytes` is `100000000`. Each `archives` row
+records the archive `path` relative to `_benchmark`, `source_collection`, `part`,
+`parts`, `first_example`, `last_example`, exact `examples` and `shared_members`
+lists, `file_count`, `bytes`, and the archive's `sha256`. Use these records to
+locate an example and verify a ZIP's contents, size, and hash.
+
+All benchmark ZIP parts are supplied in Git; no release download or Git LFS
+pointer is required. Database ZIP chunks are also included, with their automatic
+reassembly described in [installation](INSTALLATION.md#prepare-the-databases).
+Unlike database chunks, benchmark parts hold whole examples and need no reassembly.
+The browser discovers collections and ZIP parts inside these mode folders and
+reads answer artifacts directly from ZIP members, including `result.md`,
+`eval/evaluation.json`, and `eval/claim_review.json`. Keep the archives compressed;
+no extraction is needed for results or evaluation views.
+
+The benchmark question table has its own vertical and horizontal scroll area
+with sticky column headers. Select an execution to open its Result panel.
+**Eval** starts on when saved numerical validation or claim review is available
+and is disabled when neither is available. Switch it off to read the plain
+answer. Claim categories and numerical outcomes use separate highlights;
+select a highlight to inspect its review, compared values, source evidence,
+and related DOI/block links in the sidebar. Displaying a saved evaluation does
+not rerun it or make a model request.
+
+The supplied benchmark outputs use the corrected prompt numbering in the
+current catalogs. Saved run timestamps and recorded tool results retain their
+provenance. Use the archive manifest to locate a specific execution.
+
+## Repacking saved outputs
+
+The [packaging script](../scripts/package_benchmarks.py) accepts `--source`
+pointing to the local ThermoML benchmark root and `--destination` pointing to a
+new staging directory. It refuses an existing destination, leaves source files
+unchanged, and verifies every archived file against the source snapshot with
+SHA-256. A collection is split only between complete example directories.
+If one example cannot fit within the configured limit, the build stops rather
+than dividing that example. Install the completed staging contents under
+`_benchmark/` after reviewing its manifest.
 
 ## Commands
 
@@ -54,12 +106,15 @@ reporting selected cases. Do not infer the cohort from an old run directory's
 file count. Use `--resume TIMESTAMP` only with a matching existing campaign and
 compatible prompts/settings.
 
-For the 2026-09-18 local refresh, the preflight matches 17 Main, 28 Query, and 18
-Analysis prompts. The Main selection uses current ID `4.4` for “What happens when
-ethanol is mixed with water near room temperature?” An older saved campaign
-labels that same prompt `3.4`; the inherited launcher still used that older ID.
-The local launcher now follows the current prompt catalog and retains its four
-existing exclusions. Historical campaign artifacts keep their original IDs.
+The synchronized prompt catalogs contain **24 Main, 31 Query, and 21 Analysis**
+prompts. The batch launcher selects **17 Main** cases and all Query and
+Analysis cases. Main prompts `1.1.5`, `3.7`, and `4.5` are available in the
+catalog but are absent from its selected Main cohort. The launcher uses the
+corrected IDs while preserving the selected question texts.
+
+The batch launcher still writes `_benchmark/<Agent>/test_run_<timestamp>`;
+changing its output routing to the archive mode folders remains deferred.
+New runs retain their own settings and source evidence.
 
 The per-agent runners can also be invoked from `ThermoML_research_agent/`:
 
@@ -76,6 +131,52 @@ runner's `--help` for prompt selection and output overrides.
 For direct Anthropic benchmark requests, configure `ANTHROPIC_API_KEY` in the
 launching environment and add `--anthropic` to the batch command. Without `--go`,
 the launcher reports its plan. Provider/model availability is account dependent.
+
+## Statistics from saved evaluations
+
+The statistics script, accepted-cohort selection, charts, tables and complete
+evaluation workflow are published in
+[`eval_stats.zip`](../_benchmark/_eval_stats/eval_stats.zip), inside
+`_benchmark/_eval_stats/`. The archive is below 100,000,000 bytes. Its
+[manifest](../_benchmark/_eval_stats/manifest.json) records sizes and hashes.
+The browser extracts this package into the same folder on first launch.
+To prepare it without starting the app and then regenerate statistics:
+
+```shell
+python eval_stats_archives.py
+python _benchmark/_eval_stats/eval_stats.py
+```
+
+The script defaults to this checkout's `_benchmark/` root and reads saved
+`eval/evaluation.json` records directly from ZIP parts, without extraction or
+model requests. The extracted `_benchmark/_eval_stats/selection.json` identifies the
+**157 accepted answers to 76 prompts** in the full-capability and no-ledger
+cohort. Answer and evaluation hashes are checked before counting; missing or
+changed selected files stop the run. Other saved ablation collections remain
+browsable and are outside this default statistical cohort.
+
+For the six selected agent/mode groups the script writes **14 files** under
+`_benchmark/_eval_stats/numeric_outcomes/`: one CSV and PNG for each group, plus
+`summary.csv` and `summary.png`. Pipeline artifacts have their own row and
+contribute once to the combined property total; all-types totals count each
+native category once. Saved comparisons include the default four-significant-
+digit precision rule for continuous fitting outputs. The statistics script
+reads those judgments rather than re-evaluating numbers.
+
+Use `--root` or `--out` to select another benchmark root or output directory,
+`--selection FILE` for another declared cohort, `--all-answers` to scan all saved
+answers, or `--archive-only` to omit pipeline-artifact comparisons. A root without
+a selection manifest scans all saved answers. Use a separate output directory
+when comparing a different cohort.
+
+After extraction, start with
+`_benchmark/_eval_stats/eval_workflow/reproduce-evidence-evaluation/SKILL.md`.
+This self-contained workflow includes the instructions, system-prompt
+templates, ThermoML adapter, numerical
+rubric, human interpretations, tools and regression tests needed for a new
+evaluation. Prepared evidence accompanies each relevant saved answer.
+Private review packets, operational caches and raw evaluation working data are
+outside the publication package.
 
 ## Interpreting a campaign
 

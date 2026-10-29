@@ -1,6 +1,0 @@
-﻿group,label,database_verified_fraction,domain_knowledge_fraction,incorrect_fraction,database_verified_percent,domain_knowledge_percent,incorrect_percent,claim_count,open_empirical_question_count,aggregation
-bare_model,Bare model,0.06686939268461008,0.780145790200138,0.1529848171152519,6.686939268461008,78.0145790200138,15.298481711525188,93,4,unweighted mean of six per-question claim fractions
-flat_tools,Flat all tools,0.548028941356009,0.35070617166481827,0.1012648869791727,54.8028941356009,35.070617166481824,10.12648869791727,137,1,unweighted mean of six per-question claim fractions
-sql_prefixed,SQL tool prefixed ID,0.5289096429885903,0.4024101337259232,0.06868022328548644,52.89096429885903,40.24101337259232,6.868022328548644,119,0,unweighted mean of six per-question claim fractions
-sql_no_prefix,SQL tool flat num ID,0.4239709633604982,0.37266944941363545,0.2033595872258663,42.39709633604982,37.26694494136355,20.335958722586632,109,0,unweighted mean of six per-question claim fractions
-sql_rawdb,SQL tool one raw DB,0.5682599807599807,0.258982683982684,0.17275733525733525,56.82599807599807,25.8982683982684,17.275733525733525,119,0,unweighted mean of six per-question claim fractions

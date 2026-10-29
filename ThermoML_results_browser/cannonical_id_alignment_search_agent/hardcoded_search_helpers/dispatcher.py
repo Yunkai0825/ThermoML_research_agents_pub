@@ -323,14 +323,7 @@ def _escalate_to_query_agent(raw_text: str, rq: ResolvedQuery) -> str:
     The query agent uses LLM reasoning to interpret the user's intent
     and returns structured search parameters.
     """
-    import sys
-    from ThermoML_results_browser import _RESEARCH_ROOT
-    _ws = str(_RESEARCH_ROOT)
-    if _ws not in sys.path:
-        sys.path.insert(0, _ws)
-    from NIST_ThermoML_agents.NIST_ThermoML_query_agent.ThermoML_query_api import (
-        ThermoML_query_run,
-    )
+    from ..alignment_agent_toolbox.mcp_tools import escalate_to_query_agent
 
     context_parts = []
     if rq.unresolved:
@@ -349,10 +342,7 @@ def _escalate_to_query_agent(raw_text: str, rq: ResolvedQuery) -> str:
         f"other relevant entity IDs."
     )
 
-    result = ThermoML_query_run(question)
-    if not hasattr(result, "answer") or not isinstance(result.answer, str):
-        raise TypeError("ThermoML_query_run must return an object with a string answer")
-    return result.answer
+    return escalate_to_query_agent(question)["answer"]
 
 
 # ── SQL builder: ResolvedQuery → WHERE clauses for index DB ──────────────

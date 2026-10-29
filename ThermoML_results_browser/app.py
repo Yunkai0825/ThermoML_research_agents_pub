@@ -20,6 +20,7 @@ import io
 import os
 import re
 import sys
+import threading
 
 from flask import (
     Flask, Response, abort, g, jsonify, redirect, render_template, request,
@@ -33,6 +34,41 @@ if _REPO_ROOT not in sys.path:
 import ThermoML_results_browser
 
 app = Flask(__name__)
+
+_DATABASES_PREPARED = False
+_DATABASE_PREPARATION_LOCK = threading.Lock()
+_EVAL_STATS_PREPARED = False
+_EVAL_STATS_PREPARATION_LOCK = threading.Lock()
+
+
+def _prepare_databases():
+    """Prepare before requests, without making helper/package imports do I/O."""
+    global _DATABASES_PREPARED
+    if _DATABASES_PREPARED:
+        return
+    with _DATABASE_PREPARATION_LOCK:
+        if not _DATABASES_PREPARED:
+            from database_archives import ensure_databases
+            ensure_databases(_REPO_ROOT, progress=lambda message: print(message, flush=True))
+            _DATABASES_PREPARED = True
+
+
+def _prepare_eval_stats():
+    """Restore the published statistics payload once before serving requests."""
+    global _EVAL_STATS_PREPARED
+    if _EVAL_STATS_PREPARED:
+        return
+    with _EVAL_STATS_PREPARATION_LOCK:
+        if not _EVAL_STATS_PREPARED:
+            from eval_stats_archives import ensure_eval_stats
+            ensure_eval_stats(_REPO_ROOT, progress=lambda message: print(message, flush=True))
+            _EVAL_STATS_PREPARED = True
+
+
+@app.before_request
+def _prepare_request_databases():
+    _prepare_databases()
+    _prepare_eval_stats()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 _CARD_DB_DIR = os.path.join(_REPO_ROOT, 'ThermoML_research_agent', 'card_databases_storage')
@@ -690,6 +726,11 @@ def analysis_run():
 # ---------------------------------------------------------------------------
 
 if __name__ == '__main__':
+    from database_archives import DatabaseArchiveError
+    try:
+        _prepare_databases()
+    except (DatabaseArchiveError, OSError) as exc:
+        raise SystemExit(f"Database preparation failed: {exc}") from exc
     if not os.path.exists(DB_PATH):
         raise SystemExit(f"Required index database not found: {DB_PATH}. Restore the supplied database at this path.")
     else:

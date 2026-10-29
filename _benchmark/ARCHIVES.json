@@ -1,0 +1,712 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-29T04:26:56.074434+00:00",
+  "source": "_Code_Maintenance/_outputs_user/Benchmark/ThermoML",
+  "max_archive_bytes": 100000000,
+  "compression": "ZIP_DEFLATED",
+  "split_policy": "Whole example directories in natural path order; shared campaign files repeated in every part",
+  "archives": [
+    {
+      "path": "Main/test_run_full_capability/test_run_full_capability__part01__Q1.1.1_run_20260815_190212--Q1.1.5_run_20261020_202749.zip",
+      "source_collection": "Main/test_run_full_capability",
+      "part": 1,
+      "parts": 10,
+      "first_example": "Q1.1.1_run_20260815_190212",
+      "last_example": "Q1.1.5_run_20261020_202749",
+      "examples": [
+        "Q1.1.1_run_20260815_190212",
+        "Q1.1.2_run_20260905_022012",
+        "Q1.1.3_run_20260815_194252",
+        "Q1.1.4_run_20260905_022024",
+        "Q1.1.5_run_20261020_202749"
+      ],
+      "shared_members": [],
+      "file_count": 547,
+      "bytes": 90141170,
+      "sha256": "7c1ac901f669257487f88feb37bba59e467cd3b55315b05ad17fb8299cd7468c"
+    },
+    {
+      "path": "Main/test_run_full_capability/test_run_full_capability__part02__Q1.2.1_run_20260905_022036--Q1.2.3_run_20260815_192913.zip",
+      "source_collection": "Main/test_run_full_capability",
+      "part": 2,
+      "parts": 10,
+      "first_example": "Q1.2.1_run_20260905_022036",
+      "last_example": "Q1.2.3_run_20260815_192913",
+      "examples": [
+        "Q1.2.1_run_20260905_022036",
+        "Q1.2.2_run_20260905_041134",
+        "Q1.2.3_run_20260815_192913"
+      ],
+      "shared_members": [],
+      "file_count": 354,
+      "bytes": 87623832,
+      "sha256": "71ab3a5974e88fb7e691949e1163bd12b2209895f604cb66b7aec01cc8259a82"
+    },
+    {
+      "path": "Main/test_run_full_capability/test_run_full_capability__part03__Q1.2.4_run_20260815_194722--Q2.2_run_20260905_050212.zip",
+      "source_collection": "Main/test_run_full_capability",
+      "part": 3,
+      "parts": 10,
+      "first_example": "Q1.2.4_run_20260815_194722",
+      "last_example": "Q2.2_run_20260905_050212",
+      "examples": [
+        "Q1.2.4_run_20260815_194722",
+        "Q2.1_run_20260905_050055",
+        "Q2.2_run_20260905_050212"
+      ],
+      "shared_members": [],
+      "file_count": 379,
+      "bytes": 93475713,
+      "sha256": "8b12001886fa1a73ed12dbff1975aacbb82ed58aecf5ae47d8953d177b7384e1"
+    },
+    {
+      "path": "Main/test_run_full_capability/test_run_full_capability__part04__Q2.3_run_20260905_050249--Q3.1_run_20260905_041146.zip",
+      "source_collection": "Main/test_run_full_capability",
+      "part": 4,
+      "parts": 10,
+      "first_example": "Q2.3_run_20260905_050249",
+      "last_example": "Q3.1_run_20260905_041146",
+      "examples": [
+        "Q2.3_run_20260905_050249",
+        "Q3.1_run_20260905_041146"
+      ],
+      "shared_members": [],
+      "file_count": 202,
+      "bytes": 48017776,
+      "sha256": "6bc99f12f9fbecb72bfe6925ea2894f62ab68dc30e14014daba91180a1fadf9e"
+    },
+    {
+      "path": "Main/test_run_full_capability/test_run_full_capability__part05__Q3.2_run_20260905_041158--Q3.2_run_20260905_041158.zip",
+      "source_collection": "Main/test_run_full_capability",
+      "part": 5,
+      "parts": 10,
+      "first_example": "Q3.2_run_20260905_041158",
+      "last_example": "Q3.2_run_20260905_041158",
+      "examples": [
+        "Q3.2_run_20260905_041158"
+      ],
+      "shared_members": [],
+      "file_count": 219,
+      "bytes": 66775487,
+      "sha256": "20163acf3ff378802762d085c0ca52844e9d962e5a7f09a2ae6c1b6eab67fff6"
+    },
+    {
+      "path": "Main/test_run_full_capability/test_run_full_capability__part06__Q3.3_run_20260905_042035--Q3.3_run_20260905_042035.zip",
+      "source_collection": "Main/test_run_full_capability",
+      "part": 6,
+      "parts": 10,
+      "first_example": "Q3.3_run_20260905_042035",
+      "last_example": "Q3.3_run_20260905_042035",
+      "examples": [
+        "Q3.3_run_20260905_042035"
+      ],
+      "shared_members": [],
+      "file_count": 144,
+      "bytes": 45108538,
+      "sha256": "66b9efb2b91e3758123a2c05fdf426897af38594d4ef3101707ff25560a12669"
+    },
+    {
+      "path": "Main/test_run_full_capability/test_run_full_capability__part07__Q3.4_run_20260905_042456--Q3.4_run_20260905_042456.zip",
+      "source_collection": "Main/test_run_full_capability",
+      "part": 7,
+      "parts": 10,
+      "first_example": "Q3.4_run_20260905_042456",
+      "last_example": "Q3.4_run_20260905_042456",
+      "examples": [
+        "Q3.4_run_20260905_042456"
+      ],
+      "shared_members": [],
+      "file_count": 289,
+      "bytes": 75899345,
+      "sha256": "81aa3bbbadcb7ce26a173351f285a4ee37e934d59dde8a07c250b548dbe1b6b7"
+    },
+    {
+      "path": "Main/test_run_full_capability/test_run_full_capability__part08__Q3.5_run_20260905_043503--Q3.7_run_20261020_210056.zip",
+      "source_collection": "Main/test_run_full_capability",
+      "part": 8,
+      "parts": 10,
+      "first_example": "Q3.5_run_20260905_043503",
+      "last_example": "Q3.7_run_20261020_210056",
+      "examples": [
+        "Q3.5_run_20260905_043503",
+        "Q3.6_run_20260905_044213",
+        "Q3.7_run_20261020_210056"
+      ],
+      "shared_members": [],
+      "file_count": 296,
+      "bytes": 72757546,
+      "sha256": "438adb314c27f37e1221f6f22a79f9c55e59ef415ed64054705b73582da17ea7"
+    },
+    {
+      "path": "Main/test_run_full_capability/test_run_full_capability__part09__Q4.1_run_20260905_155433--Q4.3_run_20260905_045540.zip",
+      "source_collection": "Main/test_run_full_capability",
+      "part": 9,
+      "parts": 10,
+      "first_example": "Q4.1_run_20260905_155433",
+      "last_example": "Q4.3_run_20260905_045540",
+      "examples": [
+        "Q4.1_run_20260905_155433",
+        "Q4.2_run_20260905_045351",
+        "Q4.3_run_20260905_045540"
+      ],
+      "shared_members": [],
+      "file_count": 347,
+      "bytes": 78890753,
+      "sha256": "b58937bf9dcb98751cbc0a7f0d76f000f103c5d021e3093b118ca4dea09ce5f3"
+    },
+    {
+      "path": "Main/test_run_full_capability/test_run_full_capability__part10__Q4.4_run_20260905_045951--Q4.5_run_20261020_212753.zip",
+      "source_collection": "Main/test_run_full_capability",
+      "part": 10,
+      "parts": 10,
+      "first_example": "Q4.4_run_20260905_045951",
+      "last_example": "Q4.5_run_20261020_212753",
+      "examples": [
+        "Q4.4_run_20260905_045951",
+        "Q4.5_run_20261020_212753"
+      ],
+      "shared_members": [],
+      "file_count": 124,
+      "bytes": 31254890,
+      "sha256": "8071d7574365f5894db77d80652b4658becb4e5779b65180bebebea9c49b57df"
+    },
+    {
+      "path": "Main/test_run_ablation/test_run_no_ledger_20260905.zip",
+      "source_collection": "Main/test_run_ablation/test_run_no_ledger_20260905",
+      "part": 1,
+      "parts": 1,
+      "first_example": "Q1.1.1_run_20260802_183823",
+      "last_example": "Q4.4_run_20260802_204441",
+      "examples": [
+        "Q1.1.1_run_20260802_183823",
+        "Q1.1.2_run_20260802_183843",
+        "Q1.1.3_run_20260802_184407",
+        "Q1.1.4_run_20260802_185339",
+        "Q1.2.1_run_20260802_191218",
+        "Q1.2.2_run_20260802_192015",
+        "Q1.2.3_run_20260802_192831",
+        "Q1.2.4_run_20260802_193212",
+        "Q2.1_run_20260802_210938",
+        "Q2.2_run_20260802_211227",
+        "Q2.3_run_20260802_211534",
+        "Q3.1_run_20260802_194237",
+        "Q3.2_run_20260802_195453",
+        "Q3.3_run_20260802_195935",
+        "Q3.4_run_20260802_201829",
+        "Q3.5_run_20260802_202300",
+        "Q3.6_run_20260802_203534",
+        "Q4.1_run_20260802_203711",
+        "Q4.2_run_20260802_203737",
+        "Q4.3_run_20260802_204202",
+        "Q4.4_run_20260802_204441"
+      ],
+      "shared_members": [],
+      "file_count": 765,
+      "bytes": 9147349,
+      "sha256": "146cbb1d9c05c3e6d80f3f55e6e80ad2d58d1354ce59c1d53ae329a51370ab64"
+    },
+    {
+      "path": "Query/test_run_full_capability/test_run_20260905_021947__part01__Q1.1--Q1.6.zip",
+      "source_collection": "Query/test_run_full_capability/test_run_20260905_021947",
+      "part": 1,
+      "parts": 5,
+      "first_example": "Q1.1",
+      "last_example": "Q1.6",
+      "examples": [
+        "Q1.1",
+        "Q1.2",
+        "Q1.3",
+        "Q1.4",
+        "Q1.5",
+        "Q1.6"
+      ],
+      "shared_members": [
+        "run_log.txt",
+        "TEST_SUMMARY_20260905_060656.md",
+        "TEST_SUMMARY_20260905_162808.md",
+        "TEST_TRACE_20260905_060656.json",
+        "TEST_TRACE_20260905_162808.json"
+      ],
+      "file_count": 486,
+      "bytes": 85647180,
+      "sha256": "246cb34a137966f211c8001b1c51f85a01c8efc0ab9d59f966627d36d9795c69"
+    },
+    {
+      "path": "Query/test_run_full_capability/test_run_20260905_021947__part02__Q2.1--Q3.2.zip",
+      "source_collection": "Query/test_run_full_capability/test_run_20260905_021947",
+      "part": 2,
+      "parts": 5,
+      "first_example": "Q2.1",
+      "last_example": "Q3.2",
+      "examples": [
+        "Q2.1",
+        "Q2.2",
+        "Q2.3",
+        "Q2.4",
+        "Q3.1",
+        "Q3.2"
+      ],
+      "shared_members": [
+        "run_log.txt",
+        "TEST_SUMMARY_20260905_060656.md",
+        "TEST_SUMMARY_20260905_162808.md",
+        "TEST_TRACE_20260905_060656.json",
+        "TEST_TRACE_20260905_162808.json"
+      ],
+      "file_count": 479,
+      "bytes": 97164347,
+      "sha256": "33d3c78c9b217cb2c7f00d3ffaaa0f1cd05e50047e01bbd6f122e207f3aa7ba6"
+    },
+    {
+      "path": "Query/test_run_full_capability/test_run_20260905_021947__part03__Q3.3--Q4.2.zip",
+      "source_collection": "Query/test_run_full_capability/test_run_20260905_021947",
+      "part": 3,
+      "parts": 5,
+      "first_example": "Q3.3",
+      "last_example": "Q4.2",
+      "examples": [
+        "Q3.3",
+        "Q3.4",
+        "Q4.1",
+        "Q4.2"
+      ],
+      "shared_members": [
+        "run_log.txt",
+        "TEST_SUMMARY_20260905_060656.md",
+        "TEST_SUMMARY_20260905_162808.md",
+        "TEST_TRACE_20260905_060656.json",
+        "TEST_TRACE_20260905_162808.json"
+      ],
+      "file_count": 320,
+      "bytes": 78701404,
+      "sha256": "0c5f00c82b97757c690fea4af64fe63f26216ede2345f4a5b41e63fbe3d0476b"
+    },
+    {
+      "path": "Query/test_run_full_capability/test_run_20260905_021947__part04__Q4.3--Q4.6.zip",
+      "source_collection": "Query/test_run_full_capability/test_run_20260905_021947",
+      "part": 4,
+      "parts": 5,
+      "first_example": "Q4.3",
+      "last_example": "Q4.6",
+      "examples": [
+        "Q4.3",
+        "Q4.4",
+        "Q4.5",
+        "Q4.6"
+      ],
+      "shared_members": [
+        "run_log.txt",
+        "TEST_SUMMARY_20260905_060656.md",
+        "TEST_SUMMARY_20260905_162808.md",
+        "TEST_TRACE_20260905_060656.json",
+        "TEST_TRACE_20260905_162808.json"
+      ],
+      "file_count": 323,
+      "bytes": 96646712,
+      "sha256": "c96aed3bd180c0118d47f3186b920f31e53651790eed4db025a6cab03b2082b9"
+    },
+    {
+      "path": "Query/test_run_full_capability/test_run_20260905_021947__part05__Q5.1--Q6.4.zip",
+      "source_collection": "Query/test_run_full_capability/test_run_20260905_021947",
+      "part": 5,
+      "parts": 5,
+      "first_example": "Q5.1",
+      "last_example": "Q6.4",
+      "examples": [
+        "Q5.1",
+        "Q5.2",
+        "Q5.3",
+        "Q5.4",
+        "Q6.1",
+        "Q6.2",
+        "Q6.3",
+        "Q6.4"
+      ],
+      "shared_members": [
+        "run_log.txt",
+        "TEST_SUMMARY_20260905_060656.md",
+        "TEST_SUMMARY_20260905_162808.md",
+        "TEST_TRACE_20260905_060656.json",
+        "TEST_TRACE_20260905_162808.json"
+      ],
+      "file_count": 636,
+      "bytes": 92175641,
+      "sha256": "82d57af7f98207d1f990cd9a7e75fa0660cdc19ef25dae792abccd3ffad89096"
+    },
+    {
+      "path": "Query/test_run_full_capability/test_run_r1_1_20261020.zip",
+      "source_collection": "Query/test_run_full_capability/test_run_r1_1_20261020",
+      "part": 1,
+      "parts": 1,
+      "first_example": "Q1.7",
+      "last_example": "Q6.5",
+      "examples": [
+        "Q1.7",
+        "Q1.8",
+        "Q6.5"
+      ],
+      "shared_members": [
+        "_campaign_meta.json",
+        "run_log.txt",
+        "TEST_SUMMARY_20261020_173701.md",
+        "TEST_SUMMARY_20261020_174625.md",
+        "TEST_SUMMARY_20261020_175554.md",
+        "TEST_TRACE_20261020_173701.json",
+        "TEST_TRACE_20261020_174625.json",
+        "TEST_TRACE_20261020_175554.json"
+      ],
+      "file_count": 47,
+      "bytes": 268236,
+      "sha256": "34ff86c94c3f269d0b70883ac9d9dd30cc3ded63ce8f2b569df2cf148343221e"
+    },
+    {
+      "path": "Query/test_run_ablation/test_run_bare_model_20260916.zip",
+      "source_collection": "Query/test_run_ablation/test_run_bare_model_20260916",
+      "part": 1,
+      "parts": 1,
+      "first_example": "Q1.1",
+      "last_example": "Q1.6",
+      "examples": [
+        "Q1.1",
+        "Q1.2",
+        "Q1.3",
+        "Q1.4",
+        "Q1.5",
+        "Q1.6"
+      ],
+      "shared_members": [
+        "run_log.txt",
+        "TEST_SUMMARY_20260916_193436.md",
+        "TEST_TRACE_20260916_193436.json"
+      ],
+      "file_count": 59,
+      "bytes": 97151,
+      "sha256": "fc2848cf8726455f9d4e1e55dae5cb204080d9b65ab3e7edb0fe05539a0a0e18"
+    },
+    {
+      "path": "Query/test_run_ablation/test_run_flat_tools_20260916.zip",
+      "source_collection": "Query/test_run_ablation/test_run_flat_tools_20260916",
+      "part": 1,
+      "parts": 1,
+      "first_example": "Q1.1",
+      "last_example": "Q1.6",
+      "examples": [
+        "Q1.1",
+        "Q1.2",
+        "Q1.3",
+        "Q1.4",
+        "Q1.5",
+        "Q1.6"
+      ],
+      "shared_members": [
+        "run_log.txt",
+        "TEST_SUMMARY_20260916_182827.md",
+        "TEST_TRACE_20260916_182827.json"
+      ],
+      "file_count": 57,
+      "bytes": 1475586,
+      "sha256": "65b87657260c7001ba9274681f32133806b345a53edfe56af7ef97ebb20e5b8e"
+    },
+    {
+      "path": "Query/test_run_ablation/test_run_no_ledger__part01__test_run_no_ledger_20260905_Q1.1--test_run_no_ledger_20261027_r2_Q1.1.zip",
+      "source_collection": "Query/test_run_ablation/test_run_no_ledger",
+      "part": 1,
+      "parts": 2,
+      "first_example": "test_run_no_ledger_20260905/Q1.1",
+      "last_example": "test_run_no_ledger_20261027_r2/Q1.1",
+      "examples": [
+        "test_run_no_ledger_20260905/Q1.1",
+        "test_run_no_ledger_20260905/Q1.2",
+        "test_run_no_ledger_20260905/Q1.3",
+        "test_run_no_ledger_20260905/Q1.4",
+        "test_run_no_ledger_20260905/Q1.5",
+        "test_run_no_ledger_20260905/Q1.6",
+        "test_run_no_ledger_20260905/Q2.1",
+        "test_run_no_ledger_20260905/Q2.2",
+        "test_run_no_ledger_20260905/Q2.3",
+        "test_run_no_ledger_20260905/Q2.4",
+        "test_run_no_ledger_20260905/Q3.1",
+        "test_run_no_ledger_20260905/Q3.2",
+        "test_run_no_ledger_20260905/Q3.3",
+        "test_run_no_ledger_20260905/Q3.4",
+        "test_run_no_ledger_20260905/Q4.1",
+        "test_run_no_ledger_20260905/Q4.2",
+        "test_run_no_ledger_20260905/Q4.3",
+        "test_run_no_ledger_20260905/Q4.4",
+        "test_run_no_ledger_20260905/Q4.5",
+        "test_run_no_ledger_20260905/Q4.6",
+        "test_run_no_ledger_20260905/Q5.1",
+        "test_run_no_ledger_20260905/Q5.2",
+        "test_run_no_ledger_20260905/Q5.3",
+        "test_run_no_ledger_20260905/Q5.4",
+        "test_run_no_ledger_20260905/Q6.1",
+        "test_run_no_ledger_20260905/Q6.2",
+        "test_run_no_ledger_20260905/Q6.3",
+        "test_run_no_ledger_20260905/Q6.4",
+        "test_run_no_ledger_20261027/Q1.1",
+        "test_run_no_ledger_20261027/Q1.2",
+        "test_run_no_ledger_20261027/Q1.3",
+        "test_run_no_ledger_20261027/Q1.4",
+        "test_run_no_ledger_20261027/Q1.5",
+        "test_run_no_ledger_20261027/Q1.6",
+        "test_run_no_ledger_20261027/Q1.7",
+        "test_run_no_ledger_20261027/Q1.8",
+        "test_run_no_ledger_20261027_r2/Q1.1"
+      ],
+      "shared_members": [
+        "test_run_no_ledger_20260905/run_log.txt",
+        "test_run_no_ledger_20260905/TEST_SUMMARY_20260802_195739.md",
+        "test_run_no_ledger_20260905/TEST_TRACE_20260802_195739.json",
+        "test_run_no_ledger_20261027/run_log.txt",
+        "test_run_no_ledger_20261027/TEST_SUMMARY_20261027_034000.md",
+        "test_run_no_ledger_20261027/TEST_TRACE_20261027_034000.json",
+        "test_run_no_ledger_20261027_r2/run_log.txt",
+        "test_run_no_ledger_20261027_r2/TEST_SUMMARY_20261027_035220.md",
+        "test_run_no_ledger_20261027_r2/TEST_TRACE_20261027_035220.json"
+      ],
+      "file_count": 1011,
+      "bytes": 96508974,
+      "sha256": "29ccaf1e76837e7d736beba21f2b83825cdb63e6a343a87c70ce3c9d58cf50f6"
+    },
+    {
+      "path": "Query/test_run_ablation/test_run_no_ledger__part02__test_run_no_ledger_20261027_r2_Q1.2--test_run_no_ledger_20261027_r2_Q1.8.zip",
+      "source_collection": "Query/test_run_ablation/test_run_no_ledger",
+      "part": 2,
+      "parts": 2,
+      "first_example": "test_run_no_ledger_20261027_r2/Q1.2",
+      "last_example": "test_run_no_ledger_20261027_r2/Q1.8",
+      "examples": [
+        "test_run_no_ledger_20261027_r2/Q1.2",
+        "test_run_no_ledger_20261027_r2/Q1.3",
+        "test_run_no_ledger_20261027_r2/Q1.4",
+        "test_run_no_ledger_20261027_r2/Q1.5",
+        "test_run_no_ledger_20261027_r2/Q1.6",
+        "test_run_no_ledger_20261027_r2/Q1.7",
+        "test_run_no_ledger_20261027_r2/Q1.8"
+      ],
+      "shared_members": [
+        "test_run_no_ledger_20260905/run_log.txt",
+        "test_run_no_ledger_20260905/TEST_SUMMARY_20260802_195739.md",
+        "test_run_no_ledger_20260905/TEST_TRACE_20260802_195739.json",
+        "test_run_no_ledger_20261027/run_log.txt",
+        "test_run_no_ledger_20261027/TEST_SUMMARY_20261027_034000.md",
+        "test_run_no_ledger_20261027/TEST_TRACE_20261027_034000.json",
+        "test_run_no_ledger_20261027_r2/run_log.txt",
+        "test_run_no_ledger_20261027_r2/TEST_SUMMARY_20261027_035220.md",
+        "test_run_no_ledger_20261027_r2/TEST_TRACE_20261027_035220.json"
+      ],
+      "file_count": 560,
+      "bytes": 69443093,
+      "sha256": "64ae4bfd26df72541f4af1f023d80f62db5b53daac02252076681ae3553eb117"
+    },
+    {
+      "path": "Query/test_run_ablation/test_run_only_SQL_20260916.zip",
+      "source_collection": "Query/test_run_ablation/test_run_only_SQL_20260916",
+      "part": 1,
+      "parts": 1,
+      "first_example": "Q1.1",
+      "last_example": "Q1.6",
+      "examples": [
+        "Q1.1",
+        "Q1.2",
+        "Q1.3",
+        "Q1.4",
+        "Q1.5",
+        "Q1.6"
+      ],
+      "shared_members": [
+        "run_log.txt",
+        "TEST_SUMMARY_20260916_202024.md",
+        "TEST_TRACE_20260916_202024.json"
+      ],
+      "file_count": 57,
+      "bytes": 946341,
+      "sha256": "1c67abce6bbfeb4dd7a06b5bc68c28c448f1a06fd02791acbcdd1d478b180c3e"
+    },
+    {
+      "path": "Query/test_run_ablation/test_run_only_SQL_no_prefix_20260916.zip",
+      "source_collection": "Query/test_run_ablation/test_run_only_SQL_no_prefix_20260916",
+      "part": 1,
+      "parts": 1,
+      "first_example": "Q1.1",
+      "last_example": "Q1.6",
+      "examples": [
+        "Q1.1",
+        "Q1.2",
+        "Q1.3",
+        "Q1.4",
+        "Q1.5",
+        "Q1.6"
+      ],
+      "shared_members": [
+        "run_log.txt",
+        "TEST_SUMMARY_20260916_194258.md",
+        "TEST_TRACE_20260916_194258.json"
+      ],
+      "file_count": 59,
+      "bytes": 1677552,
+      "sha256": "6f1571b33943efce4468091c50519d9334b9b861ac397bd0b00b7a252641e049"
+    },
+    {
+      "path": "Query/test_run_ablation/test_run_only_SQL_rawdb_20260916.zip",
+      "source_collection": "Query/test_run_ablation/test_run_only_SQL_rawdb_20260916",
+      "part": 1,
+      "parts": 1,
+      "first_example": "Q1.1",
+      "last_example": "Q1.6",
+      "examples": [
+        "Q1.1",
+        "Q1.2",
+        "Q1.3",
+        "Q1.4",
+        "Q1.5",
+        "Q1.6"
+      ],
+      "shared_members": [
+        "run_log.txt",
+        "TEST_SUMMARY_20260916_174359.md",
+        "TEST_TRACE_20260916_174359.json"
+      ],
+      "file_count": 57,
+      "bytes": 1254463,
+      "sha256": "a7c4f99c11aea8bc22bcf9b735e4abd56625738f743335d10ee42509d19905dc"
+    },
+    {
+      "path": "Analysis/test_run_full_capability/test_run_full_capability__part01__Q1.1_run_20260905_060718--Q2.1_run_20260905_060736.zip",
+      "source_collection": "Analysis/test_run_full_capability",
+      "part": 1,
+      "parts": 6,
+      "first_example": "Q1.1_run_20260905_060718",
+      "last_example": "Q2.1_run_20260905_060736",
+      "examples": [
+        "Q1.1_run_20260905_060718",
+        "Q1.2_run_20260905_060724",
+        "Q1.3_run_20260905_060730",
+        "Q1.4_run_20261020_175647",
+        "Q2.1_run_20260905_060736"
+      ],
+      "shared_members": [],
+      "file_count": 495,
+      "bytes": 99081944,
+      "sha256": "06d2bfba8bd495fff6ce779216f3e3fa049379c6f926b4e979cb18ece90037a3"
+    },
+    {
+      "path": "Analysis/test_run_full_capability/test_run_full_capability__part02__Q2.2_run_20260905_060742--Q3.1_run_20260905_061638.zip",
+      "source_collection": "Analysis/test_run_full_capability",
+      "part": 2,
+      "parts": 6,
+      "first_example": "Q2.2_run_20260905_060742",
+      "last_example": "Q3.1_run_20260905_061638",
+      "examples": [
+        "Q2.2_run_20260905_060742",
+        "Q2.3_run_20260905_061540",
+        "Q3.1_run_20260905_061638"
+      ],
+      "shared_members": [],
+      "file_count": 377,
+      "bytes": 87230603,
+      "sha256": "7df468415350ebbfcd1e62620f691d2be286eae9c84ce93f003e2160928042e2"
+    },
+    {
+      "path": "Analysis/test_run_full_capability/test_run_full_capability__part03__Q3.2_run_20260905_061734--Q4.1_run_20260905_062427.zip",
+      "source_collection": "Analysis/test_run_full_capability",
+      "part": 3,
+      "parts": 6,
+      "first_example": "Q3.2_run_20260905_061734",
+      "last_example": "Q4.1_run_20260905_062427",
+      "examples": [
+        "Q3.2_run_20260905_061734",
+        "Q3.3_run_20260905_061910",
+        "Q4.1_run_20260905_062427"
+      ],
+      "shared_members": [],
+      "file_count": 369,
+      "bytes": 77230756,
+      "sha256": "13c679ea74fa526a3a5c3f84bd95cd160b4c9965577fb5b2316b8c1fa06021e6"
+    },
+    {
+      "path": "Analysis/test_run_full_capability/test_run_full_capability__part04__Q4.2_run_20260905_062457--Q5.2_run_20260905_062930.zip",
+      "source_collection": "Analysis/test_run_full_capability",
+      "part": 4,
+      "parts": 6,
+      "first_example": "Q4.2_run_20260905_062457",
+      "last_example": "Q5.2_run_20260905_062930",
+      "examples": [
+        "Q4.2_run_20260905_062457",
+        "Q5.1_run_20260905_062559",
+        "Q5.2_run_20260905_062930"
+      ],
+      "shared_members": [],
+      "file_count": 364,
+      "bytes": 86043440,
+      "sha256": "7995c25d8d8261d307fe746795560e10096b49385ddcc243faa13f4e2ea68888"
+    },
+    {
+      "path": "Analysis/test_run_full_capability/test_run_full_capability__part05__Q5.3_run_20260905_063038--Q5.4_run_20260905_120350.zip",
+      "source_collection": "Analysis/test_run_full_capability",
+      "part": 5,
+      "parts": 6,
+      "first_example": "Q5.3_run_20260905_063038",
+      "last_example": "Q5.4_run_20260905_120350",
+      "examples": [
+        "Q5.3_run_20260905_063038",
+        "Q5.4_run_20260905_120350"
+      ],
+      "shared_members": [],
+      "file_count": 272,
+      "bytes": 75832347,
+      "sha256": "d782e2a56d4ff41f3214d38a1eecc96e1b12f3a3ab8781a6aae3977f8520c91b"
+    },
+    {
+      "path": "Analysis/test_run_full_capability/test_run_full_capability__part06__Q5.5_run_20260905_064310--Q6.4_run_20261020_190241.zip",
+      "source_collection": "Analysis/test_run_full_capability",
+      "part": 6,
+      "parts": 6,
+      "first_example": "Q5.5_run_20260905_064310",
+      "last_example": "Q6.4_run_20261020_190241",
+      "examples": [
+        "Q5.5_run_20260905_064310",
+        "Q6.1_run_20260905_064353",
+        "Q6.2_run_20260905_161409",
+        "Q6.3_run_20261020_182310",
+        "Q6.4_run_20261020_190241"
+      ],
+      "shared_members": [],
+      "file_count": 432,
+      "bytes": 90827482,
+      "sha256": "813b54419f8d4f6b68345df7590ca4f6cc73ee3ddd3fe6e1f6d6593ef25555ad"
+    },
+    {
+      "path": "Analysis/test_run_ablation/test_run_no_ledger.zip",
+      "source_collection": "Analysis/test_run_ablation/test_run_no_ledger",
+      "part": 1,
+      "parts": 1,
+      "first_example": "test_run_no_ledger_20260905/Q1.1_run_20260802_183844",
+      "last_example": "test_run_no_ledger_20260905/Q6.2_run_20260802_210143",
+      "examples": [
+        "test_run_no_ledger_20260905/Q1.1_run_20260802_183844",
+        "test_run_no_ledger_20260905/Q1.2_run_20260802_183858",
+        "test_run_no_ledger_20260905/Q1.3_run_20260802_185034",
+        "test_run_no_ledger_20260905/Q2.1_run_20260802_185647",
+        "test_run_no_ledger_20260905/Q2.2_run_20260802_185907",
+        "test_run_no_ledger_20260905/Q2.3_run_20260802_191042",
+        "test_run_no_ledger_20260905/Q3.1_run_20260802_191508",
+        "test_run_no_ledger_20260905/Q3.2_run_20260802_192915",
+        "test_run_no_ledger_20260905/Q3.3_run_20260802_193948",
+        "test_run_no_ledger_20260905/Q4.1_run_20260802_194931",
+        "test_run_no_ledger_20260905/Q4.2_run_20260802_195440",
+        "test_run_no_ledger_20260905/Q5.1_run_20260802_201130",
+        "test_run_no_ledger_20260905/Q5.2_run_20260802_202817",
+        "test_run_no_ledger_20260905/Q5.3_run_20260802_202942",
+        "test_run_no_ledger_20260905/Q5.4_run_20260802_203725",
+        "test_run_no_ledger_20260905/Q5.5_run_20260802_214548",
+        "test_run_no_ledger_20260905/Q6.1_run_20260802_205401",
+        "test_run_no_ledger_20260905/Q6.2_run_20260802_210143"
+      ],
+      "shared_members": [],
+      "file_count": 647,
+      "bytes": 10969811,
+      "sha256": "cb999c279b762cc74ff8ec5ecfc430b6e2c095ba73a8125182de14f54475be7d"
+    }
+  ]
+}

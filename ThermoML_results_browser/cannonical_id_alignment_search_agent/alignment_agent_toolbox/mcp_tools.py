@@ -22,8 +22,13 @@ string-encoded JSON layer.
 from __future__ import annotations
 
 from contextlib import contextmanager
-from contextvars import ContextVar
+from contextvars import ContextVar, copy_context
+from datetime import datetime
+from pathlib import Path
 import os
+import tempfile
+
+from ThermoML_results_browser import _RESEARCH_ROOT
 
 from card_db_search_tools.basic_search_tools.normalization_helpers.strict_id_inputs import (
     IdentifierRefinementError,
@@ -32,10 +37,9 @@ from card_db_search_tools.basic_search_tools.normalization_helpers.strict_id_inp
 
 # ── Paths ─────────────────────────────────────────────────────
 
-_CARD_DB_DIR = os.path.normpath(
-    os.path.join(os.path.dirname(__file__), '..', '..', '..', 'card_databases_storage')
-)
+_CARD_DB_DIR = str(_RESEARCH_ROOT / 'card_databases_storage')
 _DB_PATH = os.path.join(_CARD_DB_DIR, 'ThermoML_index.db')
+_QUERY_OUTPUT_ROOT = _RESEARCH_ROOT.parent / '_output' / 'Query'
 
 
 # ── Shared state: the search form fields being built ──────────────────────
@@ -78,7 +82,7 @@ class _SearchFields:
             "variables": list(self.variables),
             "constraints": list(self.constraints),
             "phases": list(self.phases),
-            "doi": self.doi,
+            "doi": self.doi or None,
             "authors": self.authors,
             "title_keywords": self.title_keywords,
             "journal": self.journal,
@@ -796,11 +800,6 @@ def escalate_to_query_agent(question: str, context: str = "") -> dict:
     is enabled. The query agent uses LLM reasoning + full DB search
     tools to identify canonical IDs.
     """
-    import sys
-    from ThermoML_results_browser import _RESEARCH_ROOT
-    _ws = str(_RESEARCH_ROOT)
-    if _ws not in sys.path:
-        sys.path.insert(0, _ws)
     from NIST_ThermoML_agents.NIST_ThermoML_query_agent.ThermoML_query_api import (
         ThermoML_query_run,
     )
@@ -811,9 +810,22 @@ def escalate_to_query_agent(question: str, context: str = "") -> dict:
     full_q = question
     if context:
         full_q += f"\n\nContext from alignment agent:\n{context}"
-    result = ThermoML_query_run(full_q)
+    # Query orchestration requires an explicit, isolated session. Keep search
+    # escalations with the browser's shared Query runs, with an atomic unique
+    # directory for concurrent requests. Tests can patch this one output root.
+    _QUERY_OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+    session_dir = Path(tempfile.mkdtemp(
+        prefix=f"run_{datetime.now():%Y%m%d_%H%M%S}_alignment_",
+        dir=_QUERY_OUTPUT_ROOT,
+    ))
+    # Query owns its tracking context; isolate it even when a nested run fails.
+    result = copy_context().run(
+        ThermoML_query_run, full_q, session_dir=session_dir, run_verdict=False,
+    )
     if not hasattr(result, "answer") or not isinstance(result.answer, str):
         raise TypeError("ThermoML_query_run must return an object with a string answer")
+    if getattr(result, "timed_out", False):
+        return {"status": "timeout", "answer": result.answer, "timed_out": True}
     return {"status": "ok", "answer": result.answer}
 
 

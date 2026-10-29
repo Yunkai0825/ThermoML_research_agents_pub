@@ -11,7 +11,7 @@ Usage::
     )
 
     # Agentic (LLM) path — default
-    result = alignment_agent_run("ethanol + viscosity ; water + density")
+    result = alignment_agent_run("ethanol + viscosity")
 
     # Deterministic (fast) path
     result = alignment_agent_run(
@@ -24,6 +24,7 @@ Usage::
 from __future__ import annotations
 
 import time
+import math
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
@@ -45,6 +46,7 @@ class AlignmentResult:
         timed_out: bool = False,
         resolution_log: list | None = None,
         _agent_result: object | None = None,
+        query_groups: list[dict] | None = None,
     ):
         self.answer = answer
         self.iterations = iterations
@@ -53,6 +55,7 @@ class AlignmentResult:
         self.fields = fields
         self.resolution_log = resolution_log or []
         self._agent_result = _agent_result
+        self.query_groups = query_groups or []
 
     def to_dict(self) -> dict:
         return {
@@ -62,6 +65,7 @@ class AlignmentResult:
             "timed_out": self.timed_out,
             "fields": self.fields,
             "resolution_log": self.resolution_log,
+            "query_groups": self.query_groups,
         }
 
 
@@ -74,7 +78,7 @@ def alignment_agent_run(
     Parameters
     ----------
     search_text : str
-        Raw user search text (e.g. "ethanol + viscosity ; water + density").
+        Raw search text; semicolons separate independent OR clauses.
     settings : dict, optional
         - ``use_agent`` (bool): ``True`` → Argo LLM agent, ``False`` → deterministic.
           Default: ``True``.
@@ -85,8 +89,15 @@ def alignment_agent_run(
     -------
     AlignmentResult
         Contains ``.answer``, ``.fields`` (resolved search form dict),
-        ``.iterations``, ``.elapsed_seconds``, ``.resolution_log``, etc.
+        ``.iterations``, ``.elapsed_seconds``, and ``.query_groups``. Multiple
+        clauses keep separate fields in query_groups and leave .fields empty.
     """
+    if not isinstance(search_text, str):
+        raise TypeError("search_text must be a string")
+    queries = [group.strip() for group in search_text.split(";") if group.strip()]
+    if not queries:
+        raise ValueError("Enter at least one search query.")
+
     if settings is None:
         settings = {}
     if not isinstance(settings, dict):
@@ -102,10 +113,78 @@ def alignment_agent_run(
     if not isinstance(use_agent, bool):
         raise TypeError("settings.use_agent must be a boolean")
 
-    if use_agent:
-        return _run_argo_agent(search_text, settings)
-    else:
-        return _run_hardcoded(search_text, settings)
+    max_wait = settings.get("max_wait_seconds")
+    if max_wait is not None and (
+        isinstance(max_wait, bool) or not isinstance(max_wait, int) or max_wait < 1
+    ):
+        raise TypeError("settings.max_wait_seconds must be a positive integer")
+    started = time.monotonic()
+    deadline = started + max_wait if max_wait is not None else None
+    groups = []
+    results = []
+    for index, query in enumerate(queries, 1):
+        group_settings = dict(settings)
+        if deadline is not None:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise TimeoutError(
+                    f"Search time budget exhausted before query group {index}: {query}"
+                )
+            group_settings["max_wait_seconds"] = max(1, math.ceil(remaining))
+        result = (
+            _run_argo_agent(query, group_settings) if use_agent
+            else _run_hardcoded(query, group_settings)
+        )
+        if result.timed_out:
+            raise TimeoutError(f"Query group {index} ({query}) exceeded its time budget.")
+        _validate_query_fields(query, index, result.fields)
+        groups.append({
+            "query": query,
+            "fields": result.fields,
+            "answer": result.answer,
+            "iterations": result.iterations,
+            "elapsed_seconds": result.elapsed_seconds,
+            "timed_out": result.timed_out,
+            "resolution_log": result.resolution_log,
+        })
+        results.append(result)
+
+    if len(results) == 1:
+        results[0].query_groups = groups
+        return results[0]
+    return AlignmentResult(
+        fields={},
+        answer="\n\n".join(
+            f"{index}. {group['query']}\n{group['answer']}"
+            for index, group in enumerate(groups, 1)
+        ),
+        iterations=sum(result.iterations for result in results),
+        elapsed_seconds=time.monotonic() - started,
+        timed_out=any(result.timed_out for result in results),
+        resolution_log=[
+            f"[{group['query']}] {entry}"
+            for group in groups for entry in group["resolution_log"]
+        ],
+        query_groups=groups,
+    )
+
+
+_FILTER_FIELDS = (
+    "compounds", "properties", "phases", "measurements", "variables",
+    "constraints", "title_keywords", "doi", "authors", "journal",
+    "year_min", "year_max", "system_type", "block_type", "n_components",
+    "min_datapoints", "formula",
+)
+
+
+def _validate_query_fields(query: str, index: int, fields: dict) -> None:
+    """Never turn an unresolved OR clause into an unrestricted search."""
+    if fields.get("unresolved"):
+        raise ValueError(
+            f"Query group {index} ({query}) has unresolved terms: {fields['unresolved']}"
+        )
+    if not any(fields.get(name) for name in _FILTER_FIELDS):
+        raise ValueError(f"Query group {index} ({query}) did not resolve any search filters.")
 
 
 # ── Argo agent path ──────────────────────────────────────────────────────
@@ -164,7 +243,7 @@ def _run_hardcoded(
     rq = rqs[0]  # primary AND-block
 
     # Convert ResolvedQuery → fields dict (same shape as the Argo path)
-    fields: Dict[str, Any] = {}
+    fields: Dict[str, Any] = {"unresolved": list(rq.unresolved)}
     if rq.compounds:
         fields['compounds'] = [
             {'name': c.display_name, 'global_id': c.global_id, 'score': c.score}

@@ -1,10 +1,10 @@
 # Local ThermoML data
 
-The assembled workspace uses the existing databases under `ThermoML_research_agent/`. Five database files arrive as unchanged [release assets](INSTALLATION.md#download-the-release-assets); the other seven database files are stored in Git. Local setup and application startup do not require database regeneration. The inventory below was read from the supplied SQLite files on 2026-09-18; no databases were rebuilt.
+The assembled workspace uses the original databases under `ThermoML_research_agent/`. Five large databases are distributed as ordered ZIP byte chunks in [`_database_archives/`](../_database_archives/manifest.json); the other seven database files are stored directly in Git. [Automatic startup preparation](INSTALLATION.md#prepare-the-databases) restores and verifies the large files without regenerating data. The inventory below was read from the supplied SQLite files on 2026-09-18; no databases were rebuilt.
 
 ## Included files
 
-After the release assets are placed, the 12 nonempty database files occupy **4,875,669,504 bytes** (about 4.54 GiB). They contain original SQLite data. Asset filenames, local destinations, byte counts, and SHA-256 hashes are recorded in [RELEASE_ASSETS.json](RELEASE_ASSETS.json).
+After preparation, the 12 nonempty database files occupy **4,875,669,504 bytes** (about 4.54 GiB). They contain original SQLite data. The five reconstructed files total **4,687,310,848 bytes**. Their chunk order, destinations, sizes, and hashes are recorded in [`_database_archives/manifest.json`](../_database_archives/manifest.json). [RELEASE_ASSETS.json](RELEASE_ASSETS.json) retains original hashes and legacy release provenance for the packaging builder, not a separate download requirement.
 
 | File, relative to `ThermoML_research_agent/` | Bytes | Observed contents |
 | --- | ---: | --- |
@@ -22,6 +22,21 @@ After the release assets are placed, the 12 nonempty database files occupy **4,8
 | `card_databases_storage/ThermoML_index.db` | 412,033,024 | 123,727 indexed blocks and joined identity registries |
 
 The raw database has `papers`, `compounds`, `blocks`, `block_properties`, and `block_variables` tables. The corpus archive has `documents` and `metadata`; its format is `thermoml-zlib-sqlite-v1`. Each document stores independent zlib-compressed JSON and XML. Loose DOI-named JSON/XML directories are absent from this checkout. The results browser can read the compressed corpus directly.
+
+## Packaged large databases
+
+The five large databases are supplied as **53 ZIP files totaling 702,470,714
+bytes**. The largest ZIP is **50,719,928 bytes**. Packaging verified every
+original database against its recorded SHA-256; reconstruction restores the
+original **4,687,310,848 bytes**.
+
+| Database | ZIP parts |
+| --- | ---: |
+| `thermoml_raw.db` | 22 |
+| `PCS_INDIV.db` | 15 |
+| `PureOrMixtureData_registry.db` | 6 |
+| `ThermoML_index.db` | 5 |
+| `thermoml_raw_corpus.db` | 5 |
 
 ## Provenance and derived data
 
@@ -55,4 +70,4 @@ The supplied sources include 129 authored measurement knowledge JSON files and 1
 
 Database input files remain under `ThermoML_research_agent/`. Benchmark runs belong under the workspace's [`_benchmark/`](../_benchmark/); freeform runs, caches, and diagnostics belong under [`_output/`](../_output/). Parser and compactor diagnostics use `_output/Query/Diagnostics/`. Standalone property-screening runs use `_output/Query/property_screening_runs/`, with shared deterministic caches under `_output/Query/_cache/property_screening/`; an active agent session receives its screening artifacts in that session's data directory.
 
-Existing benchmark and freeform ZIPs contain historical run artifacts. The full-framework Main and Analysis archives are unchanged release assets; the remaining supplied benchmark collections and freeform archive are stored in Git. Place the two downloaded benchmark ZIPs at the destinations in [installation](INSTALLATION.md#download-the-release-assets) and leave them compressed for direct browser access. Their presence is not evidence that a fresh model-backed run or a database rebuild has been performed during setup.
+Existing benchmark and freeform ZIPs contain historical run artifacts and are stored in Git. Benchmark collections are grouped by agent and full-capability/ablation mode, with whole examples packed into independently readable ZIP parts smaller than 100,000,000 bytes. Exact archive membership, sizes, and SHA-256 hashes are recorded in [`_benchmark/ARCHIVES.json`](../_benchmark/ARCHIVES.json); see [BENCHMARKS.md](BENCHMARKS.md) for the layout. The browser discovers these nested ZIP parts and reads answer Markdown and saved evaluation JSON without extraction. All required database payloads are also in Git and are [prepared automatically](INSTALLATION.md#prepare-the-databases). The saved artifacts do not establish that a fresh model-backed run or a database rebuild has been performed during setup.
