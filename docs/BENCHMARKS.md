@@ -150,7 +150,7 @@ python _benchmark/_eval_stats/eval_stats.py
 The script defaults to this checkout's `_benchmark/` root and reads saved
 `eval/evaluation.json` records directly from ZIP parts, without extraction or
 model requests. The extracted `_benchmark/_eval_stats/selection.json` identifies the
-**157 accepted answers to 76 prompts** in the full-capability and no-ledger
+**159 accepted answers to 76 prompts** in the full-capability and no-ledger
 cohort. Answer and evaluation hashes are checked before counting; missing or
 changed selected files stop the run. Other saved ablation collections remain
 browsable and are outside this default statistical cohort.
@@ -158,8 +158,9 @@ browsable and are outside this default statistical cohort.
 For the six selected agent/mode groups the script writes **14 files** under
 `_benchmark/_eval_stats/numeric_outcomes/`: one CSV and PNG for each group, plus
 `summary.csv` and `summary.png`. Pipeline artifacts have their own row and
-contribute once to the combined property total; all-types totals count each
-native category once. Saved comparisons include the default four-significant-
+contribute once to the combined property total. All-types totals include native
+property values, pipeline artifacts and measurement conditions once each; stored
+uncertainties remain separate. Saved comparisons include the default four-significant-
 digit precision rule for continuous fitting outputs. The statistics script
 reads those judgments rather than re-evaluating numbers.
 

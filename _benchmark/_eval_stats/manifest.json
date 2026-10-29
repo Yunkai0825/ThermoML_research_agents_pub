@@ -1,17 +1,17 @@
 {
   "archives": [
     {
-      "bytes": 1471837,
+      "bytes": 1476609,
       "path": "eval_stats.zip",
-      "sha256": "624ffed334fbf57ff0a26802f737a5d33c7d2f0dbcf152f13ecbdc06fcba4799"
+      "sha256": "5b60b3c36edabe493e70465b37230573b519674e12d363dc4ae993770ec313d2"
     }
   ],
   "files": [
     {
       "archive": "eval_stats.zip",
-      "bytes": 35033,
+      "bytes": 34949,
       "path": "eval_stats.py",
-      "sha256": "08e6357c8bf8beeda4ce8dfd31425f8a47db1f9b9450937822d8e73c607f2140"
+      "sha256": "f6428571cc8b307080d3c7e18a0b6c3506df52454c67a1a391cc6356a879e6b1"
     },
     {
       "archive": "eval_stats.zip",
@@ -663,33 +663,33 @@
     },
     {
       "archive": "eval_stats.zip",
-      "bytes": 25799,
+      "bytes": 27530,
       "path": "numeric_outcomes/Query__full_capability.csv",
-      "sha256": "77e76380df4878a58228b3918fc5310f675362e8f326715dabdee8f33c02796d"
+      "sha256": "f469a2d7c47847571010a9a6dfcae19aa1c90e37c8a55714c288ae7e8f6b1842"
     },
     {
       "archive": "eval_stats.zip",
-      "bytes": 156708,
+      "bytes": 161605,
       "path": "numeric_outcomes/Query__full_capability.png",
-      "sha256": "d7936a76f2fc72e280a5639ef3ff5d74e789aa29c81f862ee4674a88855f3dc4"
+      "sha256": "545fe4531de2914ecd30587515d23c86b4b91551fae4ee92055a1ff55fe1161e"
     },
     {
       "archive": "eval_stats.zip",
-      "bytes": 4201,
+      "bytes": 4203,
       "path": "numeric_outcomes/summary.csv",
-      "sha256": "72c331bcc1f70315ed7194a15b7c19af16fcfefd8dc7c75357c7ac4f151ff74a"
+      "sha256": "58ef6fb09f8b009e09fdd4cc03d503a8184919489b8140fb6ca385a8cfc2c337"
     },
     {
       "archive": "eval_stats.zip",
-      "bytes": 324855,
+      "bytes": 326199,
       "path": "numeric_outcomes/summary.png",
-      "sha256": "326c7e0ee5bab8cfb8ea24047b7f6a320eae77a1ee3259bebda5bea185975bd8"
+      "sha256": "f4d1821582c308989b0ddfd68c584ecc9d203ae72be5c715446f775bcc39ed8d"
     },
     {
       "archive": "eval_stats.zip",
-      "bytes": 47301,
+      "bytes": 47074,
       "path": "selection.json",
-      "sha256": "00aa6773299022a9d68fd51c8e3f75cf3261bddebb42e04e49fc802f69993541"
+      "sha256": "bb9bdf7f2ea96bb27e7dbd36128360a110cf68f00ed92a4bb15a57ec1aa63bd5"
     }
   ],
   "max_archive_bytes": 100000000,
