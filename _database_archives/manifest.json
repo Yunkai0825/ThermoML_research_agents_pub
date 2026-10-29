@@ -1,0 +1,521 @@
+{
+  "schema_version": 1,
+  "archive_limit_bytes": 100000000,
+  "chunk_bytes": 95000000,
+  "compression": "deflated",
+  "compression_level": 1,
+  "databases": [
+    {
+      "repository_path": "ThermoML_research_agent/ThermoML.v2020-09-30.db/thermoml_raw.db",
+      "bytes": 2014683136,
+      "sha256": "7ca4372d638aaaa6b5364c232d1cecafee0a1592dcfdeb4ad718aed26da3bb59",
+      "parts": [
+        {
+          "archive": "thermoml_raw_part1.zip",
+          "member": "part0001.bin",
+          "offset": 0,
+          "bytes": 95000000,
+          "sha256": "46378567da3728db803081abdb8c660e21dc926d59ac0946efb89110ae62a40b",
+          "archive_bytes": 12661230,
+          "archive_sha256": "60c722bcfcafc903a58f1e202acb466ce2278e23a66bc4416f1ea62efb7085c1"
+        },
+        {
+          "archive": "thermoml_raw_part2.zip",
+          "member": "part0002.bin",
+          "offset": 95000000,
+          "bytes": 95000000,
+          "sha256": "6c190d8c1afacd817f89c5d9a5061d374ce30282d4268a7af247cf042245e2f6",
+          "archive_bytes": 12972012,
+          "archive_sha256": "a39efad866f46f28e8862bd240e49dc766220eb076ed3416b1c91f30e9a7541a"
+        },
+        {
+          "archive": "thermoml_raw_part3.zip",
+          "member": "part0003.bin",
+          "offset": 190000000,
+          "bytes": 95000000,
+          "sha256": "2f9e5a2f916285e978e1cc126341b68ce4ff75f061a1cd7a5143c913cf7c6378",
+          "archive_bytes": 12944976,
+          "archive_sha256": "d78203715062f3dd92658c148e03e324cd295819d61ebfca9e102f2152c965ae"
+        },
+        {
+          "archive": "thermoml_raw_part4.zip",
+          "member": "part0004.bin",
+          "offset": 285000000,
+          "bytes": 95000000,
+          "sha256": "b1f546ae260c67b174e3f308ecd2609af24267052a4c2c175bb8243fad5d7166",
+          "archive_bytes": 12465599,
+          "archive_sha256": "e19a35a90cd0374dc178d957546a5a82aa7d3b59132d8b8aa3710025815b3d75"
+        },
+        {
+          "archive": "thermoml_raw_part5.zip",
+          "member": "part0005.bin",
+          "offset": 380000000,
+          "bytes": 95000000,
+          "sha256": "7242318a91c5ae3c3fa2f93776e721386307f523460e413f9f602265396817c1",
+          "archive_bytes": 12432619,
+          "archive_sha256": "27ae67dc6564fc25ebe3e0bf8a91694d26ec81017f1b6406bc0648f6a29aeb24"
+        },
+        {
+          "archive": "thermoml_raw_part6.zip",
+          "member": "part0006.bin",
+          "offset": 475000000,
+          "bytes": 95000000,
+          "sha256": "8b013a4f63c7cae3b5332b661f3fd18a135f36f1b77997c07391e54977ff6084",
+          "archive_bytes": 12495470,
+          "archive_sha256": "5d64c5b6aab293ee8557dac2ad0d36dd9916e6bf33e15355153330721894c462"
+        },
+        {
+          "archive": "thermoml_raw_part7.zip",
+          "member": "part0007.bin",
+          "offset": 570000000,
+          "bytes": 95000000,
+          "sha256": "f533eddb72386df1a71bfb564f9edc00894b51c02b43d2de1b95c34aa5abe2cd",
+          "archive_bytes": 12491367,
+          "archive_sha256": "31d60f06dec7a573dd67667183168e1ec8def42de43d2c55948c943c5fe1ea9c"
+        },
+        {
+          "archive": "thermoml_raw_part8.zip",
+          "member": "part0008.bin",
+          "offset": 665000000,
+          "bytes": 95000000,
+          "sha256": "848c92ea126c4a00cff04851748f3b90181b7f420d7ad3230551ba03b6801578",
+          "archive_bytes": 12310330,
+          "archive_sha256": "6b7024fa121dbcf141d37de98eb96f5f779b312f36c1d962a7d72e231c87259f"
+        },
+        {
+          "archive": "thermoml_raw_part9.zip",
+          "member": "part0009.bin",
+          "offset": 760000000,
+          "bytes": 95000000,
+          "sha256": "070c33dd2bfb72c766348779e15013310cc7176ea52a2643fc25fe06e678fe2d",
+          "archive_bytes": 12140602,
+          "archive_sha256": "54c86170e94c07e74e4194ce3683c57e50f0a92ce1c01cb96f3582058b261e1c"
+        },
+        {
+          "archive": "thermoml_raw_part10.zip",
+          "member": "part0010.bin",
+          "offset": 855000000,
+          "bytes": 95000000,
+          "sha256": "2a8332cf38e74c00bbdf940089fd0d926bf1fc38441d6e7e6a9c877ae614ec80",
+          "archive_bytes": 12016661,
+          "archive_sha256": "dd5767ff1f8a310adebc018ba014fbd2a1abe8cd3109645f51702ce5078aa889"
+        },
+        {
+          "archive": "thermoml_raw_part11.zip",
+          "member": "part0011.bin",
+          "offset": 950000000,
+          "bytes": 95000000,
+          "sha256": "b57a5524f2a3d50c5ddb040f6653fe705edc4021dd068701534dfb276dd34cee",
+          "archive_bytes": 12622819,
+          "archive_sha256": "742d22c773bbf418f5122490f34ff98ebe96c3a5dfc124d102c77e693ae7b5c5"
+        },
+        {
+          "archive": "thermoml_raw_part12.zip",
+          "member": "part0012.bin",
+          "offset": 1045000000,
+          "bytes": 95000000,
+          "sha256": "ef5c11ff629192e3a2259d62cdc76c8ae20f39076629e9613a18d3a500ec7eed",
+          "archive_bytes": 12390340,
+          "archive_sha256": "e0c50df1b84607724f4898e4522d536abc83abe7db69ccb9ec2edbcf030afa58"
+        },
+        {
+          "archive": "thermoml_raw_part13.zip",
+          "member": "part0013.bin",
+          "offset": 1140000000,
+          "bytes": 95000000,
+          "sha256": "317b728fed6fda1d9d53a3140f701c8b6b66e085f35509eedbd4f871ad6e7475",
+          "archive_bytes": 12503472,
+          "archive_sha256": "c7c3678f340ab73affcf9405ab294543dd5e3d1e5f81dc5019648a85c405e1f8"
+        },
+        {
+          "archive": "thermoml_raw_part14.zip",
+          "member": "part0014.bin",
+          "offset": 1235000000,
+          "bytes": 95000000,
+          "sha256": "dad25edeea5c80a85cec01e1cd64a13d1f94762a320cf74bd05adaab43228588",
+          "archive_bytes": 12351351,
+          "archive_sha256": "0579580acccfed10fdd62699e63630957ebb539352dbe4a5c6d579be4e57f7bd"
+        },
+        {
+          "archive": "thermoml_raw_part15.zip",
+          "member": "part0015.bin",
+          "offset": 1330000000,
+          "bytes": 95000000,
+          "sha256": "206b060d6824ae476e315dcac5ce83b7b06e6d0e01730a79f8a67f867eefff53",
+          "archive_bytes": 12863250,
+          "archive_sha256": "8e54b9ad62eede134baf23851eda72cf57baac83282644a42dbf433d46be25b1"
+        },
+        {
+          "archive": "thermoml_raw_part16.zip",
+          "member": "part0016.bin",
+          "offset": 1425000000,
+          "bytes": 95000000,
+          "sha256": "75c591d7b49b70a80f47bb01b3f8d7bbf32a74ef0d049d0674061486ac022469",
+          "archive_bytes": 11932765,
+          "archive_sha256": "b5024181c62b22aae5ea08d32cb45ea263fd06a0fcd475c3cc4229c8bd367e4a"
+        },
+        {
+          "archive": "thermoml_raw_part17.zip",
+          "member": "part0017.bin",
+          "offset": 1520000000,
+          "bytes": 95000000,
+          "sha256": "13b70f5ee3a85d487fe5721640b0663810f965a5c811159f2d74ed1cb44a1e58",
+          "archive_bytes": 12699940,
+          "archive_sha256": "3ffb6665d4e99dc2b40f8f06bde637b616fdcba87c5052f87849f357fc04f961"
+        },
+        {
+          "archive": "thermoml_raw_part18.zip",
+          "member": "part0018.bin",
+          "offset": 1615000000,
+          "bytes": 95000000,
+          "sha256": "039b299b8d8cf372a6abf40f39be57d509da61063470502ff8227b4f8ebf7f91",
+          "archive_bytes": 12538291,
+          "archive_sha256": "03b27fd2135cbb65f49a7f3f94f77432511ed2ca3f6c404983ea58d5f0625bbc"
+        },
+        {
+          "archive": "thermoml_raw_part19.zip",
+          "member": "part0019.bin",
+          "offset": 1710000000,
+          "bytes": 95000000,
+          "sha256": "ce005e25bb9a6df1d3ad2a128721a35d2cc7f7a9c061c6ba71125828e1b5b59d",
+          "archive_bytes": 12384796,
+          "archive_sha256": "e6037ba3904cdb30c9888bdf661e0c2b74464aec7dbd783f0f9b511138b5c569"
+        },
+        {
+          "archive": "thermoml_raw_part20.zip",
+          "member": "part0020.bin",
+          "offset": 1805000000,
+          "bytes": 95000000,
+          "sha256": "19234cd0e5855e498a13dc8c7fb79022b41a35d4d08c69b1cc9023566a7f653b",
+          "archive_bytes": 12181296,
+          "archive_sha256": "972a4b93fb01c22dcd0968dbc171141202874647f1b21414229c5ca24b08f645"
+        },
+        {
+          "archive": "thermoml_raw_part21.zip",
+          "member": "part0021.bin",
+          "offset": 1900000000,
+          "bytes": 95000000,
+          "sha256": "22fa46ede08ab441838c0ef96dfee1aea70ae04e0bf3f75c9719f0bdf47e2780",
+          "archive_bytes": 12519489,
+          "archive_sha256": "867b6701a5cdae5945dcf5af1f056db5a1a4fc106bd5e5f0b8b46feb0853ddc6"
+        },
+        {
+          "archive": "thermoml_raw_part22.zip",
+          "member": "part0022.bin",
+          "offset": 1995000000,
+          "bytes": 19683136,
+          "sha256": "7dfb0c6c3b3023e014ba01be474bd6f13e3c345473ca7418315279e0b789d0bd",
+          "archive_bytes": 2628440,
+          "archive_sha256": "aacfcfc2bfc9cf8dcc66471a1c7ff6665fe1938a2a4dc325a21e4e4358714142"
+        }
+      ]
+    },
+    {
+      "repository_path": "ThermoML_research_agent/card_databases_storage/Individual_cards_dbs/PCS_INDIV.db",
+      "bytes": 1381466112,
+      "sha256": "abe923be5d946be00f2e08df4f8ab187e00dd7c9e56aa193a561d77629454048",
+      "parts": [
+        {
+          "archive": "PCS_INDIV_part1.zip",
+          "member": "part0001.bin",
+          "offset": 0,
+          "bytes": 95000000,
+          "sha256": "b87933e2a8764b6da904f198faed8ae6903657b41db96122c1d04fe135facff6",
+          "archive_bytes": 8632757,
+          "archive_sha256": "c6475765d3bc91601fd7cbf0495855529b338f24d37b099920484f0178660131"
+        },
+        {
+          "archive": "PCS_INDIV_part2.zip",
+          "member": "part0002.bin",
+          "offset": 95000000,
+          "bytes": 95000000,
+          "sha256": "da2093f3c395088a2abe10f59566c852d99668f7a5c30d514aadb4a0b8776ae9",
+          "archive_bytes": 8704151,
+          "archive_sha256": "fe138ef716c2547ee8b9370d0d99e6845d47b47e7d65bb297155f9cb68f5f7ee"
+        },
+        {
+          "archive": "PCS_INDIV_part3.zip",
+          "member": "part0003.bin",
+          "offset": 190000000,
+          "bytes": 95000000,
+          "sha256": "5cce9640fbb882122573e1efec5ffcea2964c19c7fd996fae3fb0055aa53e38a",
+          "archive_bytes": 8263886,
+          "archive_sha256": "3fe47d036197bbaecb480fa677a1a4c01c0f514c3f8bccff72ffeeb417090d86"
+        },
+        {
+          "archive": "PCS_INDIV_part4.zip",
+          "member": "part0004.bin",
+          "offset": 285000000,
+          "bytes": 95000000,
+          "sha256": "79d98fc2a220739d03ecf7f73c7e9935c1cbf97bfd66bd32cc05d526ceed2b86",
+          "archive_bytes": 8254566,
+          "archive_sha256": "dc434c6901ab5912399dbfb62e14fc4731dc2aa15654dc167a6d2a45558aa039"
+        },
+        {
+          "archive": "PCS_INDIV_part5.zip",
+          "member": "part0005.bin",
+          "offset": 380000000,
+          "bytes": 95000000,
+          "sha256": "1b1a3deede6e6d5363d99715e0080f684a76dbf18f1c30e0950f9ce6b213ec47",
+          "archive_bytes": 8011049,
+          "archive_sha256": "f4a9256c6fc5b00d96506f3fb995397244d5531a5e50b145865d1b81ffc952f1"
+        },
+        {
+          "archive": "PCS_INDIV_part6.zip",
+          "member": "part0006.bin",
+          "offset": 475000000,
+          "bytes": 95000000,
+          "sha256": "26628957a9b3df41c131452ae181d29f05bc18564a216cca2290e6567e711f10",
+          "archive_bytes": 8306670,
+          "archive_sha256": "7839d491d93bcb50b9519e9e7a3147acf194adf9f52bff42a5361fcfd6d9940f"
+        },
+        {
+          "archive": "PCS_INDIV_part7.zip",
+          "member": "part0007.bin",
+          "offset": 570000000,
+          "bytes": 95000000,
+          "sha256": "87ad224613e1686042f0e1249025ff35b57ad89b3b1ba6bd775f74c4d2a71a76",
+          "archive_bytes": 8326439,
+          "archive_sha256": "583e179d4d988f3705ee15e79259f227f4f8caa75f9ce2d2eaae18dcad2891dc"
+        },
+        {
+          "archive": "PCS_INDIV_part8.zip",
+          "member": "part0008.bin",
+          "offset": 665000000,
+          "bytes": 95000000,
+          "sha256": "1dd21d0d85d020b8b6210275db9fe3299d747d3e3513cab3b1cd085588c12487",
+          "archive_bytes": 8352913,
+          "archive_sha256": "ba40423db93619b7bfaaee31b1e6c6442153667dada51e3cdd9d125405c5dd68"
+        },
+        {
+          "archive": "PCS_INDIV_part9.zip",
+          "member": "part0009.bin",
+          "offset": 760000000,
+          "bytes": 95000000,
+          "sha256": "59ade5673d60ef65f59c9d6169f54aab3260ffb4330229cbbda7010b7198cc07",
+          "archive_bytes": 8611396,
+          "archive_sha256": "96713552fdfd455c5200b2e52351d930f69e3683d96f7db71c682b63dde06aa9"
+        },
+        {
+          "archive": "PCS_INDIV_part10.zip",
+          "member": "part0010.bin",
+          "offset": 855000000,
+          "bytes": 95000000,
+          "sha256": "47eda05d2007655aed68c78b18335585df6a3c498136466e4a74d492db5d451b",
+          "archive_bytes": 8191770,
+          "archive_sha256": "25b61f3b433265c254c413a6d094a507a0bc6de3d95bfb82b492d33497eb0a95"
+        },
+        {
+          "archive": "PCS_INDIV_part11.zip",
+          "member": "part0011.bin",
+          "offset": 950000000,
+          "bytes": 95000000,
+          "sha256": "a317c68a792605fc2f3656fa36d0fd4192ed570c0c2eabd972e13a880ee16063",
+          "archive_bytes": 8135520,
+          "archive_sha256": "c4fad707e4dc80e1bb48f6dc7e675f6ce1a6e22078b8991de128fc77dd03c748"
+        },
+        {
+          "archive": "PCS_INDIV_part12.zip",
+          "member": "part0012.bin",
+          "offset": 1045000000,
+          "bytes": 95000000,
+          "sha256": "7f597d2481f7e5342cfd6a88c6ada3b2705de413f72d5bd35f11b47c6f66d368",
+          "archive_bytes": 8171343,
+          "archive_sha256": "ce3453f935544292ad70dfaf8427c27b321d2eebd1fcf7d80cdeea9e97d5dd36"
+        },
+        {
+          "archive": "PCS_INDIV_part13.zip",
+          "member": "part0013.bin",
+          "offset": 1140000000,
+          "bytes": 95000000,
+          "sha256": "09844bdd66699b6cc24f59b5baf369e03417558e865c46af31f4a2315468c011",
+          "archive_bytes": 8438480,
+          "archive_sha256": "36756d7723af2a1fd37a5cb588f8816009a756482956d60d2fe13216e70b409a"
+        },
+        {
+          "archive": "PCS_INDIV_part14.zip",
+          "member": "part0014.bin",
+          "offset": 1235000000,
+          "bytes": 95000000,
+          "sha256": "2a4ee476bd1f650003b9c9f9495ce120d65527b970c8771285c3a87744b1cd5c",
+          "archive_bytes": 8491796,
+          "archive_sha256": "8eff191db3b974be7da5c860ac8f329bd0cce86221a4bc00df421b4067613e3d"
+        },
+        {
+          "archive": "PCS_INDIV_part15.zip",
+          "member": "part0015.bin",
+          "offset": 1330000000,
+          "bytes": 51466112,
+          "sha256": "7cf4c21a52d94e2423bb1db5ed2fc5142adae4bd277e44c10b1a61257ad7d7a5",
+          "archive_bytes": 4505018,
+          "archive_sha256": "427b1428b6f7f43740195d058fa4ff6514871f348d35f377af5ccd2837b9a6bf"
+        }
+      ]
+    },
+    {
+      "repository_path": "ThermoML_research_agent/card_databases_storage/PureOrMixtureData_registry.db",
+      "bytes": 491024384,
+      "sha256": "7cf9761aba802f24b6431ec9a4556350dcbc90d22405bd7f4d1ec7a5ee01399c",
+      "parts": [
+        {
+          "archive": "PureOrMixtureData_registry_part1.zip",
+          "member": "part0001.bin",
+          "offset": 0,
+          "bytes": 95000000,
+          "sha256": "0750bd18b8f81bc1791546e983076747d1d502b7e39d881baf5467a1fd0162d0",
+          "archive_bytes": 7593103,
+          "archive_sha256": "cbfd6eb2c15f190f187fc416906c1fc352c7bdf8415773d3aa4d74af2da164d4"
+        },
+        {
+          "archive": "PureOrMixtureData_registry_part2.zip",
+          "member": "part0002.bin",
+          "offset": 95000000,
+          "bytes": 95000000,
+          "sha256": "c112562943faa038a4edff2d98f1d57b5d35c712627afa85ffa0c2a93f1e37f5",
+          "archive_bytes": 7665381,
+          "archive_sha256": "dcd4338face284c195edc4b3525c624cdc49da2532aafad820179187292d5fbf"
+        },
+        {
+          "archive": "PureOrMixtureData_registry_part3.zip",
+          "member": "part0003.bin",
+          "offset": 190000000,
+          "bytes": 95000000,
+          "sha256": "207fbae0f6eeebfa45381d1e47b49f14cf88a954a8b3341124959fb7c29076f4",
+          "archive_bytes": 7809793,
+          "archive_sha256": "f2ffce1f7c741a58e60a98889866b2428e0550f94a4d1c8b4272654ec257cd90"
+        },
+        {
+          "archive": "PureOrMixtureData_registry_part4.zip",
+          "member": "part0004.bin",
+          "offset": 285000000,
+          "bytes": 95000000,
+          "sha256": "8c27e540f002e7726effed6702e6b27ee57c4d89fc15397d1c206853890c7b31",
+          "archive_bytes": 7567573,
+          "archive_sha256": "115a108259a440b0dc7bdd674e54f08c77449862fdd347cee516db65ffa42b55"
+        },
+        {
+          "archive": "PureOrMixtureData_registry_part5.zip",
+          "member": "part0005.bin",
+          "offset": 380000000,
+          "bytes": 95000000,
+          "sha256": "f2d39074c3f661bcd2ecb66e8c238f36fa8c2df8fa747a1f4ad1f8affd5d117d",
+          "archive_bytes": 7556799,
+          "archive_sha256": "513559425002de18f2e0af98066ef0dd15786ac8d8d955926ebf87710dba0f10"
+        },
+        {
+          "archive": "PureOrMixtureData_registry_part6.zip",
+          "member": "part0006.bin",
+          "offset": 475000000,
+          "bytes": 16024384,
+          "sha256": "9d96cb562b6461e61e562edbf297a77546f53e5ada49ea59b5efe8ed5ac8c9d3",
+          "archive_bytes": 1396844,
+          "archive_sha256": "b698bac797b277d28e2b32286d7302bd5f805b82528db50db2dca7cfa054f316"
+        }
+      ]
+    },
+    {
+      "repository_path": "ThermoML_research_agent/card_databases_storage/ThermoML_index.db",
+      "bytes": 412033024,
+      "sha256": "79fb4e121914f3cebbaf3d375f2502c17475e82ee4f32946d92ff74d6e0a347a",
+      "parts": [
+        {
+          "archive": "ThermoML_index_part1.zip",
+          "member": "part0001.bin",
+          "offset": 0,
+          "bytes": 95000000,
+          "sha256": "40e8edeb576173794303c1f9d44cca957701c7ec2307cec48654e955fe3fc182",
+          "archive_bytes": 17718209,
+          "archive_sha256": "5dc0cd51d26161a979b96f0a6ccf54c275e2250ec87ece3829d33989133e3c78"
+        },
+        {
+          "archive": "ThermoML_index_part2.zip",
+          "member": "part0002.bin",
+          "offset": 95000000,
+          "bytes": 95000000,
+          "sha256": "475e1879436ce6dc6a3c85da0b7f340a26738cf1fefeb74c8eab309d8e5ffeea",
+          "archive_bytes": 15849902,
+          "archive_sha256": "e5a2b89e57433465c6359ebbce806d7553a36d3b277037ef693544e80b0deff2"
+        },
+        {
+          "archive": "ThermoML_index_part3.zip",
+          "member": "part0003.bin",
+          "offset": 190000000,
+          "bytes": 95000000,
+          "sha256": "90a7f5ec46eb8a7b832c79e50c7d5108c316c2f60997e59873c939c826657a25",
+          "archive_bytes": 16178885,
+          "archive_sha256": "b6cffa11a1010897d997bd8528c30819f038263de87721e8936f60ec24efb524"
+        },
+        {
+          "archive": "ThermoML_index_part4.zip",
+          "member": "part0004.bin",
+          "offset": 285000000,
+          "bytes": 95000000,
+          "sha256": "0a6ad734734f3b57b7b534db93fd6f21583422f0d62249610866f62b7e91365e",
+          "archive_bytes": 16475564,
+          "archive_sha256": "f72c68bcf3b4cd687912fe28473551f13a21ea4cf5472c54ed7423d7ff1d0089"
+        },
+        {
+          "archive": "ThermoML_index_part5.zip",
+          "member": "part0005.bin",
+          "offset": 380000000,
+          "bytes": 32033024,
+          "sha256": "6acff0d7100c3eb97bb0e145207b6703699e993910bf83baef57f724a0ffedce",
+          "archive_bytes": 5488511,
+          "archive_sha256": "d8b5d6e15b7d97fc3c68ffb5bb6f31091f5626e0640d5771147d78145667f430"
+        }
+      ]
+    },
+    {
+      "repository_path": "ThermoML_research_agent/ThermoML.v2020-09-30.db/thermoml_raw_corpus.db",
+      "bytes": 388104192,
+      "sha256": "c7f8f8c8e6cd9933f79bc07a667dffade1e636114894501245a4f7f9a7a7c34f",
+      "parts": [
+        {
+          "archive": "thermoml_raw_corpus_part1.zip",
+          "member": "part0001.bin",
+          "offset": 0,
+          "bytes": 95000000,
+          "sha256": "74d5e4b8a0730e860708fe8f73b0f2d22e8f34a89417d11aedf330e15d5a5cb9",
+          "archive_bytes": 50134880,
+          "archive_sha256": "fe63b7357ad465503a48aea38ef17685d907bbe23b5c8e8dec7d0d926fa9684e"
+        },
+        {
+          "archive": "thermoml_raw_corpus_part2.zip",
+          "member": "part0002.bin",
+          "offset": 95000000,
+          "bytes": 95000000,
+          "sha256": "30ef7db8ef7944bdd90208db9564f656b3b3691714bf3716b76bd9bb96478f46",
+          "archive_bytes": 49544202,
+          "archive_sha256": "a1be8d2fe7a41a03197176d33580fd2f9b8b4ac5f65f4ac2c45a792868041098"
+        },
+        {
+          "archive": "thermoml_raw_corpus_part3.zip",
+          "member": "part0003.bin",
+          "offset": 190000000,
+          "bytes": 95000000,
+          "sha256": "2150ad3751ece860be9478316a624325530f280eb5bc760ffb2aaf24f3d44bf2",
+          "archive_bytes": 50719928,
+          "archive_sha256": "113382ccccc390dbb7c5e7197e68ad42e1bf5a82a12587555fced3041744f699"
+        },
+        {
+          "archive": "thermoml_raw_corpus_part4.zip",
+          "member": "part0004.bin",
+          "offset": 285000000,
+          "bytes": 95000000,
+          "sha256": "7a98e50c49ab5516f51e64a13951d9af9af5741ef2db448ee0e73aa6c48ea62f",
+          "archive_bytes": 50571104,
+          "archive_sha256": "09a2b75604286dde2b79a6382a8a7c780aad51ef013aa36d43151b173fd28a3c"
+        },
+        {
+          "archive": "thermoml_raw_corpus_part5.zip",
+          "member": "part0005.bin",
+          "offset": 380000000,
+          "bytes": 8104192,
+          "sha256": "5dfb00995ab878d8eb3d6c5e969155af2ea68fab130ea69a293fa61873ab36f8",
+          "archive_bytes": 4255167,
+          "archive_sha256": "d5bd36660424673f7d290cb1e6cdc42745b4c5ab77e5f7fd85693e17b7564fac"
+        }
+      ]
+    }
+  ]
+}
