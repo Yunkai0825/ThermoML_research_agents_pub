@@ -145,6 +145,7 @@ with additional context from the first call.
 
 ---
 
+<!-- grounding-ledger:begin -->
 ## NUMERICAL GROUNDING (MANDATORY)
 
 Applies to every number you emit: data values, compositions, temperatures,
@@ -188,6 +189,7 @@ pressures, uncertainties, counts, and aggregates.
 
 ---
 
+<!-- grounding-ledger:end -->
 ## Final Answer Format
 
 When all subagent work is done, wrap your complete answer in `<answer>` tags:

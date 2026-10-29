@@ -194,3 +194,18 @@ TOOL_ENTRIES = [
         skip_compactor=True, skip_subagent=True,
     ),
 ]
+
+
+def _query_l0_tools():
+    from ....NIST_ThermoML_query_agent.query_agent_workflows.L0_orchestrator.orchestrator import (
+        available_query_l0_tools,
+    )
+    return available_query_l0_tools()
+
+
+from ....general_db_query_engine.general_tool_management_helpers.tool_capabilities import (
+    bind_reachable_tools,
+)
+
+bind_reachable_tools(run_query_agent, _query_l0_tools)
+bind_reachable_tools(run_query_agents_parallel, _query_l0_tools)

@@ -34,7 +34,9 @@ def default_authoritative_fetch(
     """Full-table values of one registered block, or ``None`` when unavailable.
 
     Returns ``{"doi", "lit_num_id", "block_number", "n_rows", "columns",
-    "values": frozenset[float], "column_ranges": {col: (min, max)}}``.
+    "values": frozenset[float], "column_ranges": {col: (min, max)},
+    "column_values": {col: frozenset[float]}}`` (a numeric ``BLKpoint_id``
+    lands in ``values`` only).
     """
     if not lit_num_id:
         return None
@@ -66,6 +68,7 @@ def default_authoritative_fetch(
         return None
 
     values: set[float] = set()
+    by_column: dict[str, set[float]] = {}
     ranges: dict[str, tuple[float, float]] = {}
     reader = csv.reader(io.StringIO(result["csv_text"]))
     rows = list(reader)
@@ -79,6 +82,7 @@ def default_authoritative_fetch(
                 continue
             values.add(value)
             if column != "BLKpoint_id":
+                by_column.setdefault(column, set()).add(value)
                 low, high = ranges.get(column, (value, value))
                 ranges[column] = (min(low, value), max(high, value))
     return {
@@ -89,4 +93,7 @@ def default_authoritative_fetch(
         "columns": columns,
         "values": frozenset(values),
         "column_ranges": ranges,
+        "column_values": {
+            column: frozenset(cells) for column, cells in by_column.items()
+        },
     }

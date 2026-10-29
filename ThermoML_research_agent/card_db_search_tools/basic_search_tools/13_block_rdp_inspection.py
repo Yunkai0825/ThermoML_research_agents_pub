@@ -214,6 +214,9 @@ def inspect_block_table(
     an answer must appear in a table returned by this tool (or in another
     tool's returned output).  Quote returned rows verbatim at source
     precision; rows not shown must not be quoted — narrow ``where`` instead.
+    ``_U`` columns are expanded combined uncertainties from the source;
+    report value ± U when present; say that no uncertainty is recorded
+    only when the column is empty.
 
     Parameters
     ----------
@@ -247,7 +250,9 @@ def inspect_block_table(
         ``rows_shown`` (verbatim cells), ``table_mode`` (complete | rdp |
         nearest | head), ``stats`` (per-column min/max/n over matched rows
         and the full block), ``bracket`` (nearest-mode gap statement),
-        ``topology``, ``constraints``, ``markdown``, ``inspection_id``.
+        ``topology``, ``constraints``, ``uncertainty`` (the block-level
+        assessment behind the ``_U`` columns, or None), ``markdown``,
+        ``inspection_id``.
         With ``table_mode="rdp"`` only a shape-preserving subset is shown:
         quote only shown rows or the stats line, or narrow ``where``.
     """
@@ -497,6 +502,7 @@ def inspect_block_table(
         "stats": stats,
         "topology": topology,
         "constraints": constraints,
+        "uncertainty": metadata.get("uncertainty"),
         "inspection_id": inspection_id,
         "error": None,
     }
@@ -674,6 +680,27 @@ def _error_result(block_id, subsystem_id, message, *, doi=None, columns_help=Non
     }
 
 
+def _uncertainty_line(uncertainty) -> str | None:
+    """One header line naming the source's uncertainty assessment, or None.
+
+    Renders ``uncertainty: expanded combined (U), level 95 %, evaluated by
+    Data file compiler`` from the block-level ``CombinedUncertainty``
+    declaration; the per-point values sit in the ``_U`` table columns.
+    """
+    if not isinstance(uncertainty, dict):
+        return None
+    bits = ["expanded combined (U)"]
+    level = uncertainty.get("confidence_level")
+    if level is not None:
+        bits.append(f"level {level} %")
+    evaluator = uncertainty.get("evaluator")
+    if evaluator:
+        bits.append(f"evaluated by {evaluator}")
+    if len(bits) == 1:
+        return None
+    return "uncertainty: " + ", ".join(bits)
+
+
 def _render_markdown(result: dict) -> str:
     system = " + ".join(result["compounds"])
     head = (
@@ -695,6 +722,10 @@ def _render_markdown(result: dict) -> str:
         lines.append("block constraints: " + "; ".join(
             f"{_alias(c['column'])} = {c['value']}" for c in result["constraints"]
         ))
+
+    uncertainty_line = _uncertainty_line(result.get("uncertainty"))
+    if uncertainty_line:
+        lines.append(uncertainty_line)
 
     columns = result["columns"]
     lines.append("")

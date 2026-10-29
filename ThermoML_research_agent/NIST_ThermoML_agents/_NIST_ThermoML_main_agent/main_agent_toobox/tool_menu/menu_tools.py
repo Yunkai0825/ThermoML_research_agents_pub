@@ -262,3 +262,13 @@ TOOL_ENTRIES = [
         skip_subagent=True,
     ),
 ]
+
+
+from ....general_db_query_engine.general_tool_management_helpers.tool_capabilities import (
+    bind_reachable_tools,
+)
+
+bind_reachable_tools(
+    run_subagent_tool,
+    lambda: get_registry().executable_tools,
+)

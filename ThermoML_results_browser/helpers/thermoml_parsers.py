@@ -9,6 +9,7 @@ Every identifier exposed by this module uses the strict generated-card ID
 grammar (``DOIcomp_*``, ``BLK*``, ``PROPblock_*``, or ``RXNblock_*``).
 """
 
+import math
 from decimal import Decimal
 
 from ThermoML_raw_json_to_card_db_parsers.id_schema import (
@@ -410,7 +411,8 @@ def parse_reaction_block(block, compounds_map):
             'org_num': doi_comp_id(org),
             'name': ci.get('name', ''),
             'formula': ci.get('formula', ''),
-            'stoichiometry': p.get('nStoichiometricCoef', 0),
+            # text in the raw corpus ("-1", ".5", "-10.25"): a finite number, else 0 (finding (g), 2026-10-21)
+            'stoichiometry': _stoichiometric_coefficient(p.get('nStoichiometricCoef')),
             'phase': p.get('ePhase', ''),
             'sample_num': (
                 doi_comp_sample_id(org, sample_ordinal)
@@ -424,7 +426,7 @@ def parse_reaction_block(block, compounds_map):
 
     def _fmt_p(p):
         c = abs(p['stoichiometry'])
-        cs = f"{c} " if c != 1 else ""
+        cs = f"{fmt_val(c)} " if c != 1 else ""      # 2.0 -> "2 ", 2.5 -> "2.5 ", 1 -> nothing
         return f"{cs}{p['name']} ({p['phase']})"
 
     equation = ' + '.join(_fmt_p(r) for r in reactants) + ' \u2192 ' + ' + '.join(_fmt_p(pr) for pr in products)
@@ -475,6 +477,16 @@ def _as_float(value):
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+def _stoichiometric_coefficient(value):
+    """A reaction participant's nStoichiometricCoef as a finite float.
+
+    The raw corpus carries it as text ("-1", "1", ".5", "-10.25"); a missing, unreadable or
+    non-finite value counts as 0.0 (the participant is then on neither side of the equation).
+    """
+    coef = _as_float(value)
+    return coef if coef and math.isfinite(coef) else 0.0
 
 
 def _state_axes(raw_block):

@@ -35,6 +35,7 @@ Key rules:
   and `core_blocks_found[]` retain canonical scoped IDs. Registry names and
   detailed block context are constructed by two deterministic batch tools.
 
+<!-- grounding-ledger:begin -->
 ## Numerical grounding (MANDATORY)
 
 You relay results; you do not create data. Reproduce numeric content from
@@ -57,6 +58,7 @@ instruction, dispatch a follow-up query to resolve them (inspect the
 anchored blocks); otherwise relay them cautiously, clearly marked
 UNVERIFIED — never as verified data.
 
+<!-- grounding-ledger:end -->
 ## Agent-Emitted Markers
 
 **Tool-calling turns:**
@@ -139,10 +141,16 @@ tools: []
 guidance: |
   Return the query agent's already assembled strict scoped-ID result as-is.
   Include exactly `answer`, `core_claims`, `status`, `summary`,
+  <!-- grounding-ledger:begin -->
   `core_id_updates`, `core_blocks_found`, and `data_inspections`. The two
   core fields already contain deterministic tool-constructed registry and
   block context, and `data_inspections` is harvested mechanically from the
   worker's inspect_block_table results. This adapter does not run another
   answer, construction, or evaluation chain.
+  <!-- grounding-ledger:else -->
+  `core_id_updates`, and `core_blocks_found`. The two core fields already
+  contain deterministic tool-constructed registry and block context. This
+  adapter does not run another answer, construction, or evaluation chain.
+  <!-- grounding-ledger:end -->
 
 </system_prompt>

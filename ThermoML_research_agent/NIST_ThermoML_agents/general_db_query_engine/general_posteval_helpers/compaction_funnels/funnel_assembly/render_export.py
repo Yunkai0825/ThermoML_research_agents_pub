@@ -10,6 +10,7 @@ carries per-node full id/block lists, dispatch args and artifact anchors.
 from __future__ import annotations
 
 import csv
+import logging
 import os
 import threading
 from pathlib import Path
@@ -17,6 +18,8 @@ from pathlib import Path
 import plotly.graph_objects as go
 
 from funnel_assembly.projections import ProjectedGraph
+
+log = logging.getLogger("workflow-png")
 
 NODE_COLORS = {
     "raw": "#4C78A8",
@@ -99,53 +102,111 @@ MODE_NOTES = {
 
 # PNG export goes through kaleido/Chromium, whose global scope is not
 # thread-safe: when an agent thread renders plots concurrently it can
-# corrupt the scope and make write_image block forever, wedging the
-# process-global generation lock and thus the whole run.  Bound every
-# render with a timeout; the first hang trips a process-wide breaker so
-# later figures skip PNG instantly (the interactive HTML is always
-# written).  THERMOML_WORKFLOW_PNG=0 disables PNG up front.
-_PNG_TIMEOUT_S = float(os.environ.get("THERMOML_WORKFLOW_PNG_TIMEOUT", "45"))
-_PNG_DISABLED = os.environ.get(
-    "THERMOML_WORKFLOW_PNG", "").strip().lower() in ("0", "false", "no", "off")
-_PNG_BREAKER_LOCK = threading.Lock()
+# corrupt the scope and make an export block forever, wedging the
+# process-global generation lock and thus the whole run.  Every render
+# is bounded by a timeout.  The first hang trips the breaker of the
+# workflow being built, so that workflow's later figures skip PNG at
+# once; the next workflow build starts with a fresh breaker (kaleido
+# runs each export in its own browser, so a hung export does not block
+# the next one).  The interactive HTML is always written.  Every figure
+# left without a PNG is logged and listed in PNG_SKIPPED_TSV in the
+# workflow folder.  THERMOML_WORKFLOW_PNG=0 disables PNG up front and
+# THERMOML_WORKFLOW_PNG_TIMEOUT sets the timeout in seconds (default
+# 45); both are read when a workflow build starts.
+PNG_SKIPPED_TSV = "png_skipped.tsv"
+PNG_SKIPPED_COLUMNS = ["figure", "png", "reason", "detail", "older_png"]
 
 
-def _export_png(figure, png: Path) -> Path | None:
-    """Best-effort PNG via kaleido; returns the path or None.  A hang is
-    bounded by ``_PNG_TIMEOUT_S`` and trips a process-wide breaker so the
-    run is never blocked."""
-    global _PNG_DISABLED
-    if _PNG_DISABLED:
-        return None
-    box: dict = {}
+class PngExport:
+    """PNG export state of ONE workflow build (one workflow folder)."""
 
-    def _run() -> None:
+    def __init__(self) -> None:
+        self.timeout_s = float(
+            os.environ.get("THERMOML_WORKFLOW_PNG_TIMEOUT", "45"))
+        self.switched_off = os.environ.get(
+            "THERMOML_WORKFLOW_PNG", "").strip().lower() in (
+                "0", "false", "no", "off")
+        self.tripped_by = ""          # the PNG whose export hung
+        self.figures = 0
+        self.skipped: list[dict] = []
+
+    def export(self, figure, png: Path) -> Path | None:
+        """Best-effort PNG via kaleido; returns the path or None.  The
+        image is rendered in a daemon thread bounded by ``timeout_s`` and
+        written here, so an export that hangs never writes a file later."""
+        self.figures += 1
+        if self.switched_off:
+            return self._skip(png, "switched off",
+                              "THERMOML_WORKFLOW_PNG turns PNG export off")
+        if self.tripped_by:
+            return self._skip(png, "breaker",
+                              f"an earlier PNG of this workflow timed out"
+                              f" ({self.tripped_by})")
+        box: dict = {}
+
+        def _run() -> None:
+            try:
+                box["png"] = figure.to_image(format="png", scale=2)
+            except Exception as exc:  # noqa: BLE001 — reported below
+                box["error"] = exc
+
+        worker = threading.Thread(target=_run, name="kaleido-png",
+                                  daemon=True)
+        worker.start()
+        worker.join(self.timeout_s)
+        if worker.is_alive():
+            self.tripped_by = png.name
+            return self._skip(png, "timeout",
+                              f"no image after {self.timeout_s:g}s; the"
+                              f" rest of this workflow skips PNG")
+        if "error" in box:
+            return self._skip(png, "error", f"export failed: {box['error']}")
         try:
-            figure.write_image(str(png), scale=2)
-            box["ok"] = True
-        except Exception as exc:  # noqa: BLE001 — reported to caller
-            box["error"] = exc
+            png.write_bytes(box["png"])
+        except OSError as exc:
+            return self._skip(png, "error", f"write failed: {exc}")
+        return png
 
-    worker = threading.Thread(target=_run, name="kaleido-png", daemon=True)
-    worker.start()
-    worker.join(_PNG_TIMEOUT_S)
-    if worker.is_alive():
-        with _PNG_BREAKER_LOCK:
-            _PNG_DISABLED = True
-        print(f"[workflow] PNG export timed out after {_PNG_TIMEOUT_S:.0f}s "
-              f"({png.name}); disabling PNG for this process \u2014 "
-              f"interactive HTML kept", flush=True)
+    def _skip(self, png: Path, reason: str, detail: str) -> None:
+        older = png.exists()
+        self.skipped.append({
+            "figure": png.with_suffix(".html").name, "png": png.name,
+            "reason": reason, "detail": detail,
+            "older_png": "yes" if older else "no",
+        })
+        level = (logging.INFO if reason in ("switched off", "breaker")
+                 else logging.WARNING)
+        log.log(level, "PNG skipped (%s): %s: %s; HTML kept%s", reason,
+                png.name, detail,
+                "; an older PNG from an earlier build is still there"
+                if older else "")
         return None
-    if "error" in box:
-        print(f"[workflow] PNG export failed ({png.name}): "
-              f"{box['error']} \u2014 interactive HTML kept", flush=True)
-        return None
-    return png
+
+    def finish(self, out_dir: Path) -> Path | None:
+        """List this build's figures without a PNG in the workflow folder
+        (a list left by an earlier build is removed when every figure got
+        its PNG); returns the list's path, or None."""
+        listing = Path(out_dir) / PNG_SKIPPED_TSV
+        if not self.skipped:
+            if listing.exists():
+                listing.unlink()
+            return None
+        _write(listing, self.skipped, PNG_SKIPPED_COLUMNS)
+        deliberate = all(r["reason"] == "switched off" for r in self.skipped)
+        log.log(logging.INFO if deliberate else logging.WARNING,
+                "%d of %d workflow figures have no PNG; listed in %s",
+                len(self.skipped), self.figures, listing)
+        return listing
 
 
 def render_figure(graph: ProjectedGraph, title: str, stem: str,
                   out_dir: Path, mode: str = "",
-                  width: int = 1900, height: int = 1080) -> list[Path]:
+                  width: int = 1900, height: int = 1080,
+                  png_export: PngExport | None = None) -> list[Path]:
+    """Write ``<stem>.html`` and, best effort, ``<stem>.png``.  Pass the
+    build's ``png_export`` so one breaker and one skip list cover the
+    whole workflow; without it the figure gets its own (logged, not
+    listed)."""
     unit = _UNITS[graph.metric]
     nodes = sorted(graph.nodes.values(), key=lambda n: (n.order, n.key))
     index = {n.key: i for i, n in enumerate(nodes)}
@@ -187,7 +248,7 @@ def render_figure(graph: ProjectedGraph, title: str, stem: str,
     png = out_dir / f"{stem}.png"
     figure.write_html(str(html), include_plotlyjs="cdn")
     outputs = [html]
-    saved = _export_png(figure, png)
+    saved = (png_export or PngExport()).export(figure, png)
     if saved is not None:
         outputs.append(saved)
     return outputs

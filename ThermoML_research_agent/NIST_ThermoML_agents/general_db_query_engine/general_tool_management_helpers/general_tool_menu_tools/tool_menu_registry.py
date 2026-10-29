@@ -198,6 +198,12 @@ class ToolMenuRegistry:
     # ── Browsing ──────────────────────────────────────────────
 
     @property
+    def executable_tools(self) -> Dict[str, Callable]:
+        """The exact callable targets accepted by execute()."""
+        return {name: entry.fn for name, entry in self._tools.items()
+                if entry.fn is not None}
+
+    @property
     def size(self) -> int:
         """Total registered tools."""
         return len(self._tools)

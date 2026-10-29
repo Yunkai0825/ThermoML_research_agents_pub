@@ -1135,3 +1135,15 @@ TOOL_ENTRIES = [
         skip_subagent=True,
     ),
 ]
+
+
+def _alignment_tools():
+    from ..analysis_agent_workflows.L1_workers.l1_composition_alignment import _get_catalog
+    return _get_catalog().wrapped_tools()
+
+
+from ...general_db_query_engine.general_tool_management_helpers.tool_capabilities import (
+    bind_reachable_tools,
+)
+
+bind_reachable_tools(align_compositions, _alignment_tools)

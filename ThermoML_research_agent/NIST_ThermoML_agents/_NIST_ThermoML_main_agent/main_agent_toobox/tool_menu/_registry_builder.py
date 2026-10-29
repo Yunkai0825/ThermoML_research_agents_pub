@@ -25,6 +25,7 @@ import logging
 from ....general_db_query_engine.general_tool_management_helpers.general_tool_menu_tools import (
     ToolMenuRegistry,
 )
+from ....general_db_query_engine.general_data_grounding_gate import without_ledger_tools
 
 log = logging.getLogger("MENU-BUILDER")
 
@@ -68,7 +69,8 @@ def _register_query_tools(reg) -> None:
     )
     # Each entry has a .group; register_from_tool_entries appends
     # group as a sub-level: query / <group> / <tool_name>
-    reg.register_from_tool_entries("query", _SEARCH_ENTRIES)
+    # Gate off: the ledger's own tools are not offered at all.
+    reg.register_from_tool_entries("query", without_ledger_tools(_SEARCH_ENTRIES))
 
 
 # ── Analysis agent: fitting + hardcoded data + discovery ──────
@@ -85,5 +87,5 @@ def _register_analysis_tools(reg) -> None:
         TOOL_ENTRIES as disc_entries,
     )
     reg.register_from_tool_entries(
-        "analysis", hc_entries + fit_entries + disc_entries,
+        "analysis", without_ledger_tools(hc_entries + fit_entries + disc_entries),
     )

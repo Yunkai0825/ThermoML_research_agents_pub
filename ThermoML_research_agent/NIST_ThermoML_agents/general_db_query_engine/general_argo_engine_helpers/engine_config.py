@@ -95,6 +95,10 @@ class EngineConfig:
     # root.  Each session config must therefore list EVERY pair reachable
     # from its root down to the deepest ledger-bearing layer.
     SUBAGENT_LEDGER_LEVELS: dict = field(default_factory=dict)
+    # Replay the historical grounding policy while retaining current tools.
+    # The outermost runner owns this policy for its complete nested run.
+    GROUNDING_GATE_LEGACY_MODE: bool = False
+
     def is_claude_model(self, model_name: str) -> bool:
         """Return True for Claude models, which require omitting top_p."""
         return "claude" in model_name.lower()
@@ -115,6 +119,11 @@ _root_ledger_levels: ContextVar[dict | None] = ContextVar(
     default=None,
 )
 
+_root_grounding_gate_legacy_mode: ContextVar[bool | None] = ContextVar(
+    "thermoml_root_grounding_gate_legacy_mode",
+    default=None,
+)
+
 
 def get_root_ledger_levels() -> dict | None:
     """Return the root session's ``SUBAGENT_LEDGER_LEVELS`` map (or None).
@@ -123,6 +132,27 @@ def get_root_ledger_levels() -> dict | None:
     context — callers should fall back to the active config's own map.
     """
     return _root_ledger_levels.get()
+
+
+def _configured_grounding_legacy_mode(config: EngineConfig | None) -> bool:
+    value = getattr(config, "GROUNDING_GATE_LEGACY_MODE", False)
+    if not isinstance(value, bool):
+        raise TypeError("GROUNDING_GATE_LEGACY_MODE must be a bool")
+    return value
+
+
+def get_grounding_gate_legacy_mode() -> bool:
+    """Return the outermost run's grounding policy, or the active default.
+
+    False selects current grounding; True selects the historical policy.
+    A nested runner cannot replace its root's choice. Outside a runner, the
+    active config applies; without any config the current policy is used.
+    """
+    root_value = _root_grounding_gate_legacy_mode.get()
+    if root_value is not None:
+        return root_value
+    return _configured_grounding_legacy_mode(_active_config.get())
+
 
 def load_config(config: EngineConfig) -> None:
     """Set the active configuration in the current execution context.
@@ -172,7 +202,8 @@ def with_engine_config(config: EngineConfig):
 
     The OUTERMOST decorated runner also claims the session tree's
     ``SUBAGENT_LEDGER_LEVELS`` policy (root precedence): nested runners keep
-    swapping the active config but never the root ledger map.
+    swapping the active config but never the root ledger map or grounding
+    compatibility policy. Both root policies are reset when the run exits.
     """
     if not isinstance(config, EngineConfig):
         raise TypeError("config must be an EngineConfig instance")
@@ -183,15 +214,26 @@ def with_engine_config(config: EngineConfig):
         return _root_ledger_levels.set(
             getattr(config, "SUBAGENT_LEDGER_LEVELS", None) or {})
 
+    def _claim_root_grounding_policy():
+        if _root_grounding_gate_legacy_mode.get() is not None:
+            return None
+        return _root_grounding_gate_legacy_mode.set(
+            _configured_grounding_legacy_mode(config))
+
     def decorator(func):
         if inspect.iscoroutinefunction(func):
             @wraps(func)
             async def async_wrapper(*args, **kwargs):
                 token = _active_config.set(config)
-                root_token = _claim_root_levels()
+                root_token = None
+                grounding_token = None
                 try:
+                    root_token = _claim_root_levels()
+                    grounding_token = _claim_root_grounding_policy()
                     return await func(*args, **kwargs)
                 finally:
+                    if grounding_token is not None:
+                        _root_grounding_gate_legacy_mode.reset(grounding_token)
                     if root_token is not None:
                         _root_ledger_levels.reset(root_token)
                     _active_config.reset(token)
@@ -201,10 +243,15 @@ def with_engine_config(config: EngineConfig):
         @wraps(func)
         def wrapper(*args, **kwargs):
             token = _active_config.set(config)
-            root_token = _claim_root_levels()
+            root_token = None
+            grounding_token = None
             try:
+                root_token = _claim_root_levels()
+                grounding_token = _claim_root_grounding_policy()
                 return func(*args, **kwargs)
             finally:
+                if grounding_token is not None:
+                    _root_grounding_gate_legacy_mode.reset(grounding_token)
                 if root_token is not None:
                     _root_ledger_levels.reset(root_token)
                 _active_config.reset(token)

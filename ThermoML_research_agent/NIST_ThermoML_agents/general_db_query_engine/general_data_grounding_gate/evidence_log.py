@@ -13,12 +13,19 @@ Never enters any prompt; purely an audit artifact.
 
 from __future__ import annotations
 
+from . import profile
+
 import datetime as dt
 import json
 import logging
 from pathlib import Path
 
-from .grounding_gate import GateReport, run_data_grounding_gate
+from .grounding_gate import (
+    FLAGS_HEADER,
+    GateReport,
+    gate_switched_off,
+    run_data_grounding_gate,
+)
 from .inspection_harvest import harvest_inspections
 
 log = logging.getLogger("grounding-evidence")
@@ -31,6 +38,7 @@ def build_evidence_log(
     payload = {
         "generated": dt.datetime.now().isoformat(timespec="seconds"),
         "gate_ok": report.ok,
+        "grounding_profile": profile.profile_metadata(),
         "violations": report.violations,
         "verified": report.verified,
         "partially_grounded": report.partially_grounded,
@@ -48,6 +56,7 @@ def build_evidence_log(
         "# Data grounding evidence",
         "",
         f"- generated: {payload['generated']}",
+        f"- grounding profile: {payload['grounding_profile']['name']}",
         f"- gate verdict: {'OK' if report.ok else f'{len(report.violations)} violation(s)'}",
         "",
         "## Cited blocks",
@@ -55,6 +64,21 @@ def build_evidence_log(
         "| block | lit_num_id | inspected | inspections | db rows |",
         "|---|---|---|---|---|",
     ]
+    doi_scope = report.evidence.get("doi_scope")
+    if doi_scope:
+        lines[5:5] = [
+            "## DOI citation scope",
+            "",
+            "- cited DOIs: " + ", ".join(doi_scope["cited_dois"]),
+            "- inherited inspection candidates: " + (
+                ", ".join(doi_scope["candidate_blocks"]) or "none"
+            ),
+            (
+                "- each verified literal was checked against this candidate set; "
+                "the DOI alone does not identify one block"
+            ),
+            "",
+        ]
     cited = report.evidence.get("cited_blocks", {})
     for block, info in sorted(cited.items()):
         auth = info.get("authoritative") or {}
@@ -135,12 +159,24 @@ def write_grounding_evidence(
 ) -> Path | None:
     """Write the evidence bundle; returns the .md path or None when skipped."""
     inspections = harvest_inspections(tool_history)
+    # The active gate checked the authored answer before machine diagnostics
+    # were appended. Re-scanning their quoted values/citations would count the
+    # same claims again. Only exact append boundaries are excluded; OFF retains
+    # the historical full-answer rescan.
+    audited_answer = answer
+    if not profile.is_legacy_mode() and not gate_switched_off():
+        for machine_tail in (
+            f"\n\n---\n{FLAGS_HEADER}",
+            "\n\n[POSTANSWER DATA FLAGS]",
+        ):
+            audited_answer = audited_answer.partition(machine_tail)[0]
     report = run_data_grounding_gate(
-        answer, tool_history,
+        audited_answer, tool_history,
         inspections=inspections,
         authoritative_fetch=authoritative_fetch,
     )
-    if not inspections and not report.evidence.get("cited_blocks"):
+    if (not inspections and not report.evidence.get("cited_blocks")
+            and not report.evidence.get("doi_scope")):
         return None                       # nothing data-grounded in this run
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)

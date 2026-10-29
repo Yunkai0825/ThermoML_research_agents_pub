@@ -198,6 +198,36 @@ def _normalize_hint_text(text: str) -> str:
     return text.lower().replace(" ", "_")
 
 
+# Companion columns: the extractor emits "<col>_U" (the expanded combined
+# uncertainty of <col>) and "<col>_limit" beside the column they describe.
+# The suffixes are read from the extractor so the two files cannot drift.
+_COMPANION_SUFFIXES = tuple(
+    getattr(_extractor, name, default)
+    for name, default in (("UNCERTAINTY_SUFFIX", "_U"), ("LIMIT_SUFFIX", "_limit"))
+)
+
+
+def companion_columns(columns: List[str]) -> set:
+    """The columns of *columns* that describe another column of the list.
+
+    "<base>_U" / "<base>_limit" is a companion only when "<base>" itself is
+    in *columns*; a real column that merely ends in "_U" is not swallowed.
+    A companion is never a composition (x) or property (y) candidate: it
+    carries no property declaration (inspect_block's contract check fails on
+    it) and must not be fitted or aligned as a variable.  It stays in
+    ColumnMatch.other_columns, in BlockData.arrays and in column_ranges, so
+    the uncertainty is still shown.
+    """
+    present = set(columns)
+    out = set()
+    for col in columns:
+        for suffix in _COMPANION_SUFFIXES:
+            if suffix and col.endswith(suffix) and col[: -len(suffix)] in present:
+                out.add(col)
+                break
+    return out
+
+
 def identify_columns(
     columns: List[str],
     property_hint: str = "",
@@ -231,11 +261,16 @@ def identify_columns(
 
     compound_map = (metadata or {}).get("compound_map", {})
 
+    # Never a candidate: the point ids and the companion columns ("<col>_U",
+    # "<col>_limit") that describe another column of this block.  They are
+    # listed under other_columns instead.
+    skip = {"BLKpoint_id", "_source"} | companion_columns(columns)
+
     # --- Find ALL composition columns ---
     x_candidates = []
     comp_hint = _normalize_hint_text(composition_hint) if composition_hint else ""
     for col in columns:
-        if col in {"BLKpoint_id", "_source"}:
+        if col in skip:
             continue
         cl = _normalize_hint_text(col)
         if comp_hint and comp_hint in cl:
@@ -247,7 +282,7 @@ def identify_columns(
     y_candidates = []
     prop_hint = _normalize_hint_text(property_hint) if property_hint else ""
     for col in columns:
-        if col in {"BLKpoint_id", "_source"}:
+        if col in skip:
             continue
         cl = _normalize_hint_text(col)
         if prop_hint and prop_hint in cl:
@@ -260,6 +295,8 @@ def identify_columns(
         for category, aliases in _PROPERTY_HINTS.items():
             if any(a in prop_hint for a in aliases) or prop_hint in category:
                 for col in columns:
+                    if col in skip:
+                        continue
                     cl = _normalize_hint_text(col)
                     if any(a in cl for a in aliases) and col not in y_candidates:
                         y_candidates.append(col)

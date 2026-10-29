@@ -68,6 +68,8 @@ from ....general_db_query_engine.general_hooks_management_helpers.general_postan
     prepare_answer_only_system_prompt,
 )
 from ....general_db_query_engine.general_data_grounding_gate import (
+    core_claims_source_suffix,
+    postanswer_checker_for_tools,
     export_inspections,
     harvest_inspections,
 )
@@ -339,6 +341,8 @@ def run(
 
     postanswer = evaluate_and_assemble_return(
         agent_answer=result.answer,
+        postassembly_checker=postanswer_checker_for_tools(instrumented_tools),
+        core_claims_system_suffix=core_claims_source_suffix(instrumented_tools),
         response_json_schema=workflow["response_json_schema"],
         client=client,
         label="main-L0",

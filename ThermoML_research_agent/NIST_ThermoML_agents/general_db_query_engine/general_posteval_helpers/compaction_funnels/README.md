@@ -161,6 +161,10 @@ Entry points: `api.py` (`generate_workflow`, engine seam
   lists**, order, **artifact provenance anchors**, **full dispatch
   args JSON**, meta)
 - `registry_audit_report.tsv` (FAIL/WARN/INFO)
+- `png_skipped.tsv` — only when a figure of this build got no PNG
+  (figure, png, reason = timeout / error / breaker / switched off,
+  detail, older_png = an earlier build's PNG is still in the folder);
+  a later build that exports every PNG removes it
 
 Node keys are instance-path scoped
 (`Main/A1/L1#2:search_blocks#3:raw`); provenance anchors point into
@@ -180,6 +184,15 @@ python -B DEBUG_runner.py debug --no-render  # TSVs + audits only
 ```
 
 Set `TEMP`/`TMP` to a drive with space before rendering (kaleido).
+
+PNG export (kaleido) is bounded per figure by
+`THERMOML_WORKFLOW_PNG_TIMEOUT` seconds (default 45);
+`THERMOML_WORKFLOW_PNG=0` turns it off. Both are read when a workflow
+build starts. The first timeout trips the breaker of THAT workflow
+only: its later figures skip PNG at once, the next workflow build
+starts fresh. The HTML is always written. Every skipped PNG is logged
+on the `workflow-png` logger (so it lands in the run's `run_log.txt`)
+and listed in `png_skipped.tsv` in the workflow folder.
 
 ## Engine seam
 

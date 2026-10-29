@@ -55,8 +55,51 @@ _build_compound_map = build_compound_map
 _extract_comp_ref = extract_comp_ref
 
 
+UNCERTAINTY_SUFFIX = "_U"
+"""Column suffix of a source-reported expanded (combined) uncertainty."""
+
+LIMIT_SUFFIX = "_limit"
+"""Column suffix of the reported bound of a censored (``PropLimit``) value."""
+
+_UNCERTAINTY_SPECS = {
+    "var": ("VarUncertainty", "nExpandUncertValue"),
+    "prop": ("CombinedUncertainty", "nCombExpandUncertValue"),
+}
+
+
+def _first_entry(entries, field: str):
+    """First object in *entries* (an object or a list of them) carrying *field*."""
+    if isinstance(entries, dict):
+        entries = [entries]
+    if not isinstance(entries, list):
+        return None
+    for entry in entries:
+        if isinstance(entry, dict) and entry.get(field) is not None:
+            return entry[field]
+    return None
+
+
+def _expanded_uncertainty(item: dict, kind: str):
+    """First expanded uncertainty recorded on one raw value entry, or None.
+
+    ThermoML keeps ``CombinedUncertainty`` (properties) and
+    ``VarUncertainty`` (variables) on each ``NumValues`` value entry as one
+    object or, for several assessments, a list of them; the first entry
+    with a numeric expanded value is taken (its ``nCombUncertAssessNum``
+    keys the block-level assessment reported in the metadata header).
+    """
+    collection, value_field = _UNCERTAINTY_SPECS[kind]
+    return _first_entry(item.get(collection), value_field)
+
+
 def _extract_raw_point(raw_point: dict, col_map: dict) -> dict:
-    """Map one uncapped raw ThermoML ``NumValues`` row to PCS columns."""
+    """Map one uncapped raw ThermoML ``NumValues`` row to PCS columns.
+
+    Besides the value columns the row carries ``<column>_U`` for every value
+    entry whose source records an expanded uncertainty and
+    ``<property>_limit`` for a censored property value (the reported bound;
+    the value column itself stays empty).
+    """
     if not isinstance(raw_point, dict):
         raise ValueError("raw ThermoML NumValues entries must be objects")
     specs = {
@@ -93,12 +136,21 @@ def _extract_raw_point(raw_point: dict, col_map: dict) -> dict:
         item = matches[0]
         if value_field in item:
             row[col_name] = item[value_field]
-        elif kind == "prop" and isinstance(item.get("PropLimit"), dict):
+        elif kind == "prop" and isinstance(
+            item.get("PropLimit"), (dict, list)
+        ):
+            # Censored value: the source reports a bound, not a value.
             row[col_name] = None
+            bound = _first_entry(item["PropLimit"], "nPropLimitValue")
+            if bound is not None:
+                row[f"{col_name}{LIMIT_SUFFIX}"] = bound
         else:
             raise ValueError(
                 f"raw NumValues.{collection}[{ordinal}] lacks {value_field}"
             )
+        expanded = _expanded_uncertainty(item, kind)
+        if expanded is not None:
+            row[f"{col_name}{UNCERTAINTY_SUFFIX}"] = expanded
     return row
 
 
@@ -126,6 +178,29 @@ def _find_raw_block(paper: dict, block_id: str) -> dict:
             f"raw ThermoML source resolved {len(matches)} matches for {block_id}"
         )
     return matches[0]
+
+
+def _block_uncertainty(properties: list) -> dict | None:
+    """Block-level combined-uncertainty assessment of the first property carrying one.
+
+    The PCS card keeps the source's ``CombinedUncertainty`` declaration per
+    property (evaluation method, confidence level, evaluator, assessment
+    number); the per-point expanded values travel in the ``<property>_U``
+    columns of the extracted rows.
+    """
+    for prop in properties:
+        entry = prop.get("uncertainty") if isinstance(prop, dict) else None
+        if not isinstance(entry, dict):
+            continue
+        picked = {
+            "evaluation_method": entry.get("evaluation_method"),
+            "confidence_level": entry.get("confidence_level"),
+            "evaluator": entry.get("evaluator"),
+            "assessment_num": entry.get("assessment_num"),
+        }
+        if any(value is not None for value in picked.values()):
+            return picked
+    return None
 
 
 def _block_metadata(card: dict, block: dict, subsystem: dict | None = None) -> dict:
@@ -240,6 +315,7 @@ def _block_metadata(card: dict, block: dict, subsystem: dict | None = None) -> d
             for constraint in projected["constraints"]
         ],
         "solvents": projected["solvents"],
+        "uncertainty": _block_uncertainty(projected["properties"]),
         "BLKsubsys_id": subsystem["BLKsubsys_id"] if subsystem else None,
         "matched_subsystem": subsystem,
         "n_datapoints": (
@@ -277,9 +353,15 @@ def extract_block_csv(
     -------
     dict
         csv_text : str — full CSV with header row
-        columns : list[str] — column names in order
+        columns : list[str] — column names in order: BLKpoint_id, the
+            variables, constraints and properties, then ``<prop>_U`` (the
+            source's expanded combined uncertainty per property column,
+            empty where none is recorded), ``<var>_U`` where recorded, and
+            ``<prop>_limit`` (the reported bound of a censored value)
         n_rows : int — number of data rows
-        metadata : dict — DOI, block info, compounds
+        metadata : dict — DOI, block info, compounds; ``uncertainty`` =
+            the block-level assessment {evaluation_method,
+            confidence_level, evaluator, assessment_num} or None
         error : str | None — error message if failed
     """
     block_id = require_typed_block_input(block_number)
@@ -438,8 +520,13 @@ def extract_block_csv(
             if r.get(col) in (None, ""):
                 r[col] = cval
 
-    # Determine column order: variables first, then constraints, then properties
+    # Determine column order: variables first, then constraints, then
+    # properties; then the source uncertainties — ``<prop>_U`` for EVERY
+    # property column (empty where the source records none) and ``<var>_U``
+    # where a variable carries one — and last the ``<prop>_limit`` bounds of
+    # censored values where the source records any.
     columns = ["BLKpoint_id"]
+    ordered = {"var": [], "constr": [], "prop": []}
     for kind in ("var", "constr", "prop"):
         local_keys = [
             key for key in col_map if key.startswith(f"BLK{kind}_")
@@ -448,6 +535,19 @@ def extract_block_csv(
             local_keys, key=lambda key: block_local_ordinal(kind, key)
         ):
             columns.append(col_map[raw_key])
+            ordered[kind].append(col_map[raw_key])
+    present = set()
+    for r in rows:
+        present.update(r)
+    columns += [f"{c}{UNCERTAINTY_SUFFIX}" for c in ordered["prop"]]
+    columns += [
+        f"{c}{UNCERTAINTY_SUFFIX}" for c in ordered["var"]
+        if f"{c}{UNCERTAINTY_SUFFIX}" in present
+    ]
+    columns += [
+        f"{c}{LIMIT_SUFFIX}" for c in ordered["prop"]
+        if f"{c}{LIMIT_SUFFIX}" in present
+    ]
 
     # Write CSV
     buf = io.StringIO()

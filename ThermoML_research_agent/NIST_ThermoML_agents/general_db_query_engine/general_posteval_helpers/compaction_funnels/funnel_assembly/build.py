@@ -15,8 +15,8 @@ from pathlib import Path
 
 from funnel_assembly.graph_model import METRICS, Skeleton
 from funnel_assembly.projections import ProjectedGraph, project
-from funnel_assembly.render_export import (render_figure, write_edge_tsv,
-                                           write_node_tsv)
+from funnel_assembly.render_export import (PngExport, render_figure,
+                                           write_edge_tsv, write_node_tsv)
 from funnel_assembly.skeleton_build import build_skeleton
 from funnel_evidence.delegation_tree import build_tree
 
@@ -45,6 +45,8 @@ def build_all(session: Path, kind: str, label: str, out_dir: Path,
     graphs: dict[tuple[str, str], ProjectedGraph] = {}
     outputs: list[Path] = []
     case = label or session.name
+    # one PNG breaker and one skip list per workflow build
+    png_export = PngExport() if render else None
 
     for level in _LEVELS:
         for metric in METRICS:
@@ -60,7 +62,7 @@ def build_all(session: Path, kind: str, label: str, out_dir: Path,
                          f"registry funnel")
                 outputs.extend(render_figure(
                     graph, title, f"{stem}_{_slug(case)}", out_dir,
-                    mode=level))
+                    mode=level, png_export=png_export))
 
     # per-agent detailed subgraphs (session-owning children)
     for inst in tree.instances():
@@ -84,7 +86,7 @@ def build_all(session: Path, kind: str, label: str, out_dir: Path,
                          f" detailed subgraph")
                 outputs.extend(render_figure(
                     graph, title, f"{stem}_{_slug(case)}", out_dir,
-                    mode="detailed"))
+                    mode="detailed", png_export=png_export))
 
     # session views (agentic level under the session banner)
     if render:
@@ -93,7 +95,10 @@ def build_all(session: Path, kind: str, label: str, out_dir: Path,
             title = f"{case} \u2014 whole session \u2014 {metric}"
             outputs.extend(render_figure(
                 graph, title, f"session_{metric}_sankey_{_slug(case)}",
-                out_dir, mode="agentic"))
+                out_dir, mode="agentic", png_export=png_export))
+        listing = png_export.finish(out_dir)
+        if listing is not None:
+            outputs.append(listing)
 
     return {"skeletons": skeletons, "graphs": graphs, "outputs": outputs,
             "tree": tree}

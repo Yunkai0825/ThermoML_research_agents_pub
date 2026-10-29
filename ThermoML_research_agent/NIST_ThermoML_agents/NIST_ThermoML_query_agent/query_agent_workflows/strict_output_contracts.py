@@ -87,7 +87,7 @@ def _data_inspections(payload: dict, context: str) -> None:
         "doi", "lit_num_id", "block_number", "table_mode",
         "columns", "rows_shown", "inspection_id",
     }
-    allowed = required | {"BLKsubsys_id"}
+    allowed = required | {"BLKsubsys_id", "grounding_lines"}
     for index, item in enumerate(items):
         where = f"{context}.data_inspections[{index}]"
         item = _object(item, where)
@@ -95,7 +95,8 @@ def _data_inspections(payload: dict, context: str) -> None:
         if not required <= actual or not actual <= allowed:
             raise ValueError(
                 f"{where} fields must be {sorted(required)} "
-                f"(+ optional BLKsubsys_id); got {sorted(actual)}"
+                f"(+ optional BLKsubsys_id, grounding_lines); "
+                f"got {sorted(actual)}"
             )
         _string(item["doi"], f"{where}.doi", nonempty=True)
         _string(item["lit_num_id"], f"{where}.lit_num_id", nonempty=True)
@@ -119,6 +120,15 @@ def _data_inspections(payload: dict, context: str) -> None:
             row = _object(row, f"{where}.rows_shown[{row_index}]")
             for key, cell in row.items():
                 _string(cell, f"{where}.rows_shown[{row_index}].{key}")
+        if "grounding_lines" in item:
+            grounding_lines = _array(
+                item["grounding_lines"], f"{where}.grounding_lines",
+            )
+            for line_index, line in enumerate(grounding_lines):
+                _string(
+                    line, f"{where}.grounding_lines[{line_index}]",
+                    nonempty=True,
+                )
         if not re.fullmatch(r"INSP_[0-9a-f]{12}", item["inspection_id"]):
             raise ValueError(f"{where}.inspection_id must be INSP_<12 hex>")
 

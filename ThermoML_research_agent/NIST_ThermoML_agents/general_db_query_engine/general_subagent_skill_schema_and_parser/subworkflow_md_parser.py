@@ -60,12 +60,36 @@ _SYSTEM_PROMPT_TAG_RE = re.compile(
     re.DOTALL,
 )
 
+# A workflow marks its grounding-ledger instructions with two comment lines
+# (<!-- grounding-ledger:begin --> ... <!-- grounding-ledger:end -->). The
+# marker lines never reach a prompt; the lines between them stay unless the
+# grounding gate is switched off (THERMOML_GROUNDING_GATE=off = no gate AND no
+# ledger). An optional <!-- grounding-ledger:else --> line inside a span
+# gives the lines that stand in the span's place when the gate is off.
+_LEDGER_SPAN_RE = re.compile(
+    r"^[ \t]*<!--[ \t]*grounding-ledger:begin[ \t]*-->[ \t]*\n(?P<body>.*?)"
+    r"(?:^[ \t]*<!--[ \t]*grounding-ledger:else[ \t]*-->[ \t]*\n(?P<alt>.*?))?"
+    r"^[ \t]*<!--[ \t]*grounding-ledger:end[ \t]*-->[ \t]*(?:\n|\Z)",
+    re.DOTALL | re.MULTILINE,
+)
+
 _RESPONSE_JSON_SCHEMA_HEADING = "Response JSON Schema"
 _RESPONSE_JSON_SCHEMA_SECTION_RE = re.compile(
     r"^#\s+Response JSON Schema[ \t]*\n"
     r".*?(?=^#\s+[^\n]+\n|\Z)",
     re.DOTALL | re.MULTILINE,
 )
+
+
+def _apply_ledger_spans(text: str) -> str:
+    """Drop the marker lines; when the gate is off, drop the marked spans too
+    (a span's else part, if any, takes its place)."""
+    from ..general_data_grounding_gate.grounding_gate import gate_switched_off
+
+    keep = not gate_switched_off()
+    return _LEDGER_SPAN_RE.sub(
+        lambda m: m.group("body") if keep else (m.group("alt") or ""), text
+    )
 
 
 def _extract_front_matter(text: str) -> tuple[dict, str]:
@@ -289,7 +313,7 @@ def parse_workflow(path: str | Path) -> dict[str, Any]:
     chemistry answer agent. ``response_json_schema`` is the separate
     machine-facing schema consumed only after that agent terminates.
     """
-    text = Path(path).read_text(encoding="utf-8")
+    text = _apply_ledger_spans(Path(path).read_text(encoding="utf-8"))
     front_matter, body = _extract_front_matter(text)
 
     # <system_prompt>…</system_prompt> tags for system prompt extraction

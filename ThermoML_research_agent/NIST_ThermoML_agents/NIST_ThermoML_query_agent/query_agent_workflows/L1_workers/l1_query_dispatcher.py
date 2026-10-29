@@ -86,8 +86,11 @@ from ....general_db_query_engine.general_hooks_management_helpers.general_postan
     prepare_answer_only_system_prompt,
 )
 from ....general_db_query_engine.general_data_grounding_gate import (
+    core_claims_source_suffix,
+    postanswer_checker_for_tools,
     export_inspections,
     harvest_inspections,
+    without_ledger_tools,
 )
 from ...query_agent_argo_engine.argo_client import QueryClient
 from ....general_db_query_engine.general_subagent_skill_schema_and_parser.subworkflow_md_tool_descriptions import (
@@ -227,7 +230,9 @@ class QueryL1Catalog(AgentToolCatalog):
     def __init__(self) -> None:
         # Build an L1-filtered copy of the compactor catalog — the global one
         # contains compactors for L2 / internal tools that L1 never exposes.
-        l1_tool_names = {e.name for e in _SEARCH_ENTRIES}
+        # Gate off: the ledger's own tools are not offered at all.
+        search_entries = without_ledger_tools(_SEARCH_ENTRIES)
+        l1_tool_names = {e.name for e in search_entries}
         l1_compactors = CompactorCatalog(
             e for e in _COMPACTOR_CATALOG.entries.values()
             if e.tool_name in l1_tool_names
@@ -238,7 +243,7 @@ class QueryL1Catalog(AgentToolCatalog):
             client_factory=_l1_client_factory,
             cfg=_cfg,
         )
-        self.register_many(_SEARCH_ENTRIES)
+        self.register_many(search_entries)
 
         self._hooks: QueryAgentHooks | None = None
 
@@ -628,6 +633,8 @@ def dispatch_l1_query(
         try:
             postanswer = evaluate_and_assemble_return(
                 agent_answer=result.answer,
+                postassembly_checker=postanswer_checker_for_tools(tools),
+            core_claims_system_suffix=core_claims_source_suffix(tools),
                 response_json_schema=workflow["response_json_schema"],
                 client=client,
                 label="query-L1",
@@ -665,3 +672,17 @@ def dispatch_l1_query(
                 Path(final_context_dir), history_rec, section,
                 user_message=user_message, result=result, shipped=shipped,
                 wm_loader=wm_loader, degraded=degraded)
+
+
+# Live child catalogs for capability checks in a parent agent turn.
+from ....general_db_query_engine.general_tool_management_helpers.tool_capabilities import (
+    bind_reachable_tools,
+)
+from ..L2_leaf_evaluators.l2_dispatchers import _get_l2_catalog
+
+bind_reachable_tools(dispatch_l1_query, lambda: _get_catalog().wrapped_tools())
+for _kind in ("comp", "meas", "ref", "prop"):
+    bind_reachable_tools(
+        getattr(QueryL1Catalog, f"_dispatch_l2_{_kind}_eval"),
+        lambda kind=_kind: _get_l2_catalog(kind).wrapped_tools(),
+    )

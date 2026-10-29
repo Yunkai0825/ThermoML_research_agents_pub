@@ -5,8 +5,12 @@ post-answer hook launches parallel core-claims and ID/metadata agents, and this
 guard validates each agent's machine-facing JSON. It can also be reused by
 any other isolated JSON-producing stage.
 
-1. ``clean_json_answer`` parses one exact JSON document.  Tags, code
-   fences, prose, trailing commas, and concatenated documents are invalid.
+1. ``clean_json_answer`` parses one exact JSON document.  ONE markdown
+   code fence wrapping the whole document (```` ``` ```` or ```` ```json ````)
+   is removed by the guard itself (``unwrap_json_fence``) — no corrective
+   model call for that, and the unwrapped text is what the guard propagates.
+   Tags, prose outside the fence, trailing commas, and concatenated
+   documents remain invalid.
 2. ``validate_against_schema`` checks structural conformance against
    the workflow's parsed ``response_json_schema`` (the fenced JSON example
    from the agent's own workflow md): top-level keys present, no undeclared
@@ -32,9 +36,15 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from typing import Any, Callable
 
 log = logging.getLogger("json-answer-guard")
+
+# ONE markdown code fence around the whole answer: ``` or ```json (any case), the
+# document, the closing ```.  Anything outside the fence makes it NOT match.
+_FENCE_RE = re.compile(r"\A```[ \t]*(?:json)?[ \t]*\r?\n?(.*?)\r?\n?[ \t]*```\Z",
+                       re.DOTALL | re.IGNORECASE)
 
 _CORRECTION_SYSTEM = (
     "You are a strict formatting corrector. Convert the given agent answer "
@@ -46,12 +56,25 @@ _CORRECTION_SYSTEM = (
 )
 
 
+def unwrap_json_fence(answer: str) -> str:
+    """Return the text inside ONE markdown code fence that wraps the whole
+    answer (```` ``` ```` or ```` ```json ````), stripped; otherwise the
+    stripped answer unchanged.  Prose before or after the fence is left alone
+    (the answer then fails parsing and goes to correction as before)."""
+    text = (answer or "").strip()
+    m = _FENCE_RE.match(text)
+    if m is None:
+        return text
+    return m.group(1).strip()
+
+
 def clean_json_answer(answer: str) -> Any | None:
-    """Parse one exact JSON document, returning ``None`` when invalid."""
+    """Parse one exact JSON document (a single wrapping code fence is removed
+    first), returning ``None`` when invalid."""
     if not answer or not answer.strip():
         return None
     try:
-        return json.loads(answer.strip())
+        return json.loads(unwrap_json_fence(answer))
     except (json.JSONDecodeError, ValueError):
         return None
 
@@ -162,12 +185,19 @@ def guard_json_answer(
     -------
     (parsed, answer_text)
         ``parsed`` is the JSON object or None; ``answer_text`` is the
-        (possibly corrected) answer string to propagate downstream.
+        (possibly corrected) answer string to propagate downstream.  When
+        the only flaw was a wrapping markdown code fence, ``answer_text``
+        is the unwrapped JSON text (the fence is gone).
     """
     parsed = clean_json_answer(answer)
     violations = (validate_against_schema(parsed, schema)
                   if isinstance(parsed, require) else [])
     if isinstance(parsed, require) and not violations:
+        unwrapped = unwrap_json_fence(answer)
+        if unwrapped != (answer or "").strip():
+            log.info("[%s] markdown code fence removed from the JSON answer "
+                     "(schema conform, no correction call).", label)
+            return parsed, unwrapped
         log.debug("[%s] exact JSON answer is schema-conform "
                   "(schema conform).", label)
         return parsed, answer
@@ -210,11 +240,11 @@ def guard_json_answer(
         violations = (validate_against_schema(parsed, schema)
                       if isinstance(parsed, require) else [])
         if isinstance(parsed, require):
-            best_answer = corrected
+            best_answer = unwrap_json_fence(corrected)
             if not violations:
                 log.info("[%s] JSON corrected and schema-conform on "
                          "attempt %d.", label, attempt)
-                return parsed, corrected
+                return parsed, best_answer
 
     final_problem = ("unparseable" if not isinstance(parsed, require)
                      else "; ".join(violations[:8]))

@@ -46,6 +46,7 @@ For final answers (no tool calls): wrap in <answer>...</answer> tags (any length
 EVERY number you report MUST come from a tool call. No fit_block called = no results.
 DO NOT answer until fitting is complete.
 
+<!-- grounding-ledger:begin -->
 ## NUMERICAL GROUNDING (MANDATORY)
 
 - Data rows (x, y pairs), pure-component values, and fit outputs (RK
@@ -86,6 +87,7 @@ DO NOT answer until fitting is complete.
   otherwise treat it with caution under these same rules — never repeat an
   unverified number as verified.
 
+<!-- grounding-ledger:end -->
 ## Tool Interface
 Results are markdown tables — use them directly, don't re-request.
 
@@ -115,7 +117,9 @@ Results are markdown tables — use them directly, don't re-request.
    final answers citing DOIs no tool coupled to a `GLOBlit_N` are scrubbed
    as unverifiable. Agent-built `agentblock/` sources carry
    `lit_num_id: null`.
-10. Semicolons for multi-value strings (commas in chemical names).
+10. Multi-value arguments are native JSON arrays, one item per value
+    (`["hexane", "ethanol"]`); chemical names may contain commas. Never
+    join values into one string with semicolons — the tools refuse it.
 11. register_custom_block is a LAST-RESORT fallback: use it ONLY after
     query_thermoml shows NO usable blocks for the compounds + property
     (the tool refuses otherwise). Estimated numbers are allowed but MUST
@@ -204,7 +208,7 @@ Common property IDs (for reference when building query instructions):
 # Tools
 
 ## query_delegation
-- query_thermoml(purpose, instruction="", id_catalog=None, context="") — send a DB query to the ThermoML query agent; `id_catalog` is a native array of strict ID objects
+- query_thermoml(purpose, instruction="", id_catalog=None, context="") — send a DB query to the ThermoML query agent; `id_catalog` is a native array of strict ID objects, each with exactly the keys `type`, `global_id`, `registry_id` and `name` copied from tool output; `type` is one of `lit`, `comp`, `prop`, `var`, `constr`, `meas`, `phase`, `blocktype`, `rxntype`, `solvent` (`comp`, never `compound`)
 - query_thermoml_parallel(queries) — send a native array of exact `{label, purpose, instruction, id_catalog, context}` query objects in parallel
 - align_compositions(system, state=None, instruction="", purpose="") — dispatch the composition-alignment L1 agent. `system` is a two-name array and `state` is a JSON object such as `{"temperature_k": 298.15, "pressure_kpa": 100}`.
 

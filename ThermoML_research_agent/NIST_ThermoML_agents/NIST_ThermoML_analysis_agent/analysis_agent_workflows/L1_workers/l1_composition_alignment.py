@@ -87,8 +87,11 @@ from ....general_db_query_engine.general_hooks_management_helpers.general_postan
     prepare_answer_only_system_prompt,
 )
 from ....general_db_query_engine.general_data_grounding_gate import (
+    core_claims_source_suffix,
+    postanswer_checker_for_tools,
     export_inspections,
     harvest_inspections,
+    without_ledger_tools,
 )
 from ....general_db_query_engine.general_subagent_skill_schema_and_parser.subworkflow_md_tool_descriptions import (
     build_tool_instructions,
@@ -120,6 +123,7 @@ from ...analysis_agent_toolbox.hardcoded_data_tools import inspect_block
 from ...analysis_agent_toolbox.discovery_tools import get_pure_values
 from ...analysis_agent_toolbox.fitting_tools import fit_block, _formula_weight
 from ...ThermoML_core_calc_tools.csv_io_helpers import (
+    companion_columns,
     extract_block_arrays,
     identify_columns,
 )
@@ -230,9 +234,15 @@ def validate_dual_basis_block(
             if nm and mw:
                 molar_masses[nm] = mw
 
-    # All composition columns with a recognized basis
+    # All composition columns with a recognized basis.  A companion column
+    # ("<col>_U", "<col>_limit") describes another column of the block and
+    # is never a composition of its own: the "_U" column of a mole-fraction
+    # property would otherwise count as a second composition column.
+    companions = companion_columns(bd.columns)
     comp_cols: list[dict] = []
     for col in bd.columns:
+        if col in companions:
+            continue
         basis = detect_composition_basis(col)
         if basis in ("unknown",):
             continue
@@ -578,7 +588,9 @@ class CompAlignmentCatalog(AgentToolCatalog):
     pipeline_label = "analysis"
 
     def __init__(self) -> None:
-        tool_names = {e.name for e in _TOOL_ENTRIES}
+        # Gate off: the ledger's own tools are not offered at all.
+        entries = without_ledger_tools(_TOOL_ENTRIES)
+        tool_names = {e.name for e in entries}
         union = {}
         for cat in (_QUERY_COMPACTORS, _ANALYSIS_COMPACTORS):
             for e in cat.entries.values():
@@ -589,7 +601,7 @@ class CompAlignmentCatalog(AgentToolCatalog):
             client_factory=_comp_client_factory,
             cfg=_cfg,
         )
-        self.register_many(_TOOL_ENTRIES)
+        self.register_many(entries)
 
 
 # ── Singleton catalog instance ─────────────────────────────────────────────
@@ -739,6 +751,8 @@ def dispatch_composition_alignment(
 
         postanswer = evaluate_and_assemble_return(
             agent_answer=result.answer,
+            postassembly_checker=postanswer_checker_for_tools(tools),
+            core_claims_system_suffix=core_claims_source_suffix(tools),
             response_json_schema=workflow["response_json_schema"],
             client=client,
             label="comp-L1",

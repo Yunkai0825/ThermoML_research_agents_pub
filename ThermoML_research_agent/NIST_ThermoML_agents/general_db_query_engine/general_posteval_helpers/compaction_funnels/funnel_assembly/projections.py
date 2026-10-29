@@ -46,6 +46,9 @@ def _edge_ids(measure, metric: str, canon: dict) -> frozenset:
     ids = measure.id_view(metric)
     if metric in ("blocks", "pts") and canon:
         ids = frozenset(canon.get(i, i) for i in ids)
+    if metric == "pts":
+        ids = frozenset(i for i in ids
+                        if "::" in i and qualified_block_pts(i) > 0)
     return ids
 
 

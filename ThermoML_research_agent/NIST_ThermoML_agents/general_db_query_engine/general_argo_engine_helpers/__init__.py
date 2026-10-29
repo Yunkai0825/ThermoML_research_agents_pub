@@ -9,6 +9,7 @@ from .engine_config import (  # noqa: F401
     EngineConfig,
     load_config,
     get_config,
+    get_grounding_gate_legacy_mode,
     with_engine_config,
 )
 from .engine_hooks_anchors import (  # noqa: F401
@@ -55,6 +56,7 @@ __all__ = [
     "EngineConfig",
     "load_config",
     "get_config",
+    "get_grounding_gate_legacy_mode",
     "with_engine_config",
     "AnchorPoint",
     "AnchorCollection",

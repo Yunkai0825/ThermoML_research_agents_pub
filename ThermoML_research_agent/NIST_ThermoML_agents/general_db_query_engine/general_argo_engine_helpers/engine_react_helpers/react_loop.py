@@ -40,8 +40,10 @@ from ...general_text_context_marker_catalog import (
     MARKERS,
     wrap_subagent_answer,
 )
+from ...general_data_grounding_gate.profile import profile_metadata as _grounding_profile_metadata
 from ...general_data_grounding_gate import (
     MAX_GATE_BOUNCES as _MAX_GATE_BOUNCES,
+    build_continuity_nudge as _build_continuity_nudge,
     build_flags_note as _build_flags_note,
     build_gate_nudge as _build_gate_nudge,
     build_timeout_gate_instruction as _build_timeout_gate_instruction,
@@ -451,6 +453,10 @@ def agent_turn(
         return client.call(prompt, system, stop=stop)
 
     _cfg = get_config()
+    log.info(
+        "Data-grounding policy: profile=%s active_for_this_tool_tree=%s",
+        _grounding_profile_metadata()["name"], _gate_enabled(tools),
+    )
     _max_iter = _cfg.MAX_TOOL_ITERATIONS if max_iterations is None else max_iterations
     _timeout = _cfg.MAX_TURN_SECONDS if timeout is None else timeout
     if isinstance(_max_iter, bool) or not isinstance(_max_iter, int) or _max_iter <= 0:
@@ -813,6 +819,25 @@ def agent_turn(
 
             # Strip reasoning/summary blocks and leftover marker tags
             _clean_answer = _clean_answer_text(response)
+
+            # ── Answer continuity after a grounding bounce ──
+            # The bounce asks for a surgical repair, but the next final
+            # answer REPLACES the bounced one; a stub ("No changes.") would
+            # ship in its place. Ask once for the complete answer.
+            if _gate_enabled(tools):
+                _continuity_nudge = _build_continuity_nudge(
+                    memory, _clean_answer, clean=_clean_answer_text,
+                )
+                if _continuity_nudge:
+                    log.warning(
+                        "Final answer after a grounding bounce is a stub "
+                        "(%d chars) — asking once for the complete answer",
+                        len(_clean_answer.strip()),
+                    )
+                    memory.append({"role": "assistant", "content": response})
+                    memory.append(
+                        {"role": "user", "content": _continuity_nudge})
+                    continue
 
             # ── Mandatory data-grounding gate ──────────────
             # Every block-anchored data literal must be grounded in a

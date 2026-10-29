@@ -210,3 +210,18 @@ TOOL_ENTRIES = [
         skip_compactor=True, skip_subagent=True,
     ),
 ]
+
+
+def _query_l1_tools():
+    from ...NIST_ThermoML_query_agent.query_agent_workflows.L1_workers.l1_query_dispatcher import (
+        _get_catalog,
+    )
+    return _get_catalog().wrapped_tools()
+
+
+from ...general_db_query_engine.general_tool_management_helpers.tool_capabilities import (
+    bind_reachable_tools,
+)
+
+bind_reachable_tools(query_thermoml, _query_l1_tools)
+bind_reachable_tools(query_thermoml_parallel, _query_l1_tools)

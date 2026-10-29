@@ -221,7 +221,10 @@ def inspect_block_table(
     MANDATORY before quoting data points: every numeric data value cited
     in an answer must appear verbatim in a table returned by this tool
     (or another tool's returned output).  Unlike ``inspect_block`` (which
-    reports structure only), this returns the actual rows.
+    reports structure only), this returns the actual rows.  ``_U`` columns
+    are expanded combined uncertainties from the source; report value ± U
+    when present; say that no uncertainty is recorded only when the column
+    is empty.
 
     Parameters
     ----------

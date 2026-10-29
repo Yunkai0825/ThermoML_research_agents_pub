@@ -112,6 +112,7 @@ Report which DoF are literature-closed and which are not.
 - Whatever the outcome, produce a concise answer in ordinary text — the
   pipeline continues after you regardless of alignment success.
 
+<!-- grounding-ledger:begin -->
 ## Numerical grounding (MANDATORY)
 
 - Quote tool-returned numbers verbatim, at source precision — never round,
@@ -140,6 +141,7 @@ Report which DoF are literature-closed and which are not.
   otherwise treat it with caution under these same rules — never repeat an
   unverified number as verified.
 
+<!-- grounding-ledger:end -->
 ## Agent-Emitted Markers
 
 **Tool-calling turns:**

@@ -19,6 +19,7 @@ from __future__ import annotations
 import csv
 import importlib
 import json
+import logging
 import math
 import sqlite3
 import sys
@@ -63,6 +64,8 @@ _extract_block_csv = getattr(
     importlib.import_module("card_db_search_tools.basic_search_tools.11_block_data_extractor"),
     "extract_block_csv",
 )
+
+log = logging.getLogger("L1-core-ids")
 
 
 CORE_BLOCK_INPUT_FIELDS = frozenset(
@@ -494,6 +497,24 @@ def _validate_core_block(block: object, index: int) -> tuple[dict, dict]:
         prop["prop_num_id"] for prop in authoritative["properties"]
     ]
 
+    # An empty checksum list asserts nothing: the ID-alignment agent copies
+    # IDs only from the answer text and leaves unsupported fields empty, and
+    # answers rarely print GLOBcomp/GLOBprop IDs. Such a list is filled from
+    # the authoritative block instead of bouncing as a mismatch that no
+    # correction from the answer can repair. A non-empty list stays strict.
+    unasserted = []
+    if not comp_num_ids:
+        comp_num_ids = list(expected_comp_ids)
+        unasserted.append("comp_num_ids")
+    if not prop_num_ids:
+        prop_num_ids = list(expected_prop_ids)
+        unasserted.append("prop_num_ids")
+    if unasserted:
+        log.info(
+            "%s (%s, %s): empty %s filled from the authoritative block",
+            context, lit_num_id, block_number, " and ".join(unasserted),
+        )
+
     mismatches: list[str] = []
     if system_type != authoritative["system_type"]:
         mismatches.append(
@@ -831,7 +852,12 @@ def _correct_core_payload(
     )
     if not isinstance(parsed, dict):
         raise CoreIDValidationError("core-ID refinement returned invalid JSON")
-    return validate_minimal_core_id_alignment({**parsed, "summary": summary})
+    # Only the top-level shape is checked here; the next cycle validates the
+    # records, so a still-broken record becomes the next observation (or the
+    # final "exhausted" error) instead of escaping the loop.
+    return dict(_require_exact(
+        {**parsed, "summary": summary}, _ID_ALIGNMENT_FIELDS, "ID alignment",
+    ))
 
 
 def _review_submission(
@@ -908,7 +934,12 @@ def refine_and_enrich_l1_core_ids(
     """Run validation observations and a final adequacy decision as a loop."""
     if not isinstance(max_cycles, int) or max_cycles < 1:
         raise ValueError("max_cycles must be a positive integer")
-    current = validate_minimal_core_id_alignment(deepcopy(id_alignment))
+    # The top-level shape stays fatal; record-level errors (a missing
+    # description, a stray key inside a block) are validated inside the loop
+    # so they reach the correction call like any other observation.
+    current = dict(_require_exact(
+        deepcopy(id_alignment), _ID_ALIGNMENT_FIELDS, "ID alignment",
+    ))
     last_error: Exception | None = None
 
     for cycle in range(1, max_cycles + 1):

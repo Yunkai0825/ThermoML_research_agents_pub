@@ -1,0 +1,18 @@
+{
+  "profile": "historical_september_2026",
+  "source_commit": "bdf50547fb4cb8f1b5037dd55b4878ccb1cb21bf",
+  "scope": "Grounding policy only; current prompts, models, tools, archive and compaction remain in use.",
+  "evidence": "September 5 saved Main/Analysis contexts: 59/59 checked repair suffixes match this version; no complete September 4/5 source manifest exists.",
+  "files": {
+    "grounding_gate.py": {
+      "source_path": "ThermoML_research_agent/NIST_ThermoML_agents/general_db_query_engine/general_data_grounding_gate/grounding_gate.py",
+      "git_blob": "55ff68322850e17d65f4a4f6baf7e1bd75390b2d",
+      "sha256": "8c9086fbb03a97bc4b19716235fd704f16829baad2d8ad3b3cca7716e81e7d51"
+    },
+    "inspection_harvest.py": {
+      "source_path": "ThermoML_research_agent/NIST_ThermoML_agents/general_db_query_engine/general_data_grounding_gate/inspection_harvest.py",
+      "git_blob": "99467c3e41fdb25e048af785449e5471d67e1c6b",
+      "sha256": "3934b7fc240bfa58289a67bebe53ec4c7ced9a363cab436f89a9255e70fa0269"
+    }
+  }
+}

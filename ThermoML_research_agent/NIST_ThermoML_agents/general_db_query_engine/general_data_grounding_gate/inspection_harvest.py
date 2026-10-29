@@ -12,6 +12,8 @@ Everything here is pure text processing — no DB access, no LLM.
 
 from __future__ import annotations
 
+from . import profile
+
 import hashlib
 import json
 import re
@@ -36,7 +38,7 @@ _FIT_HEAD_RE = re.compile(
 # DOIs/id tokens would otherwise shed junk floats ("2018.02" out of
 # 10.1016/j.jct.2018.02.022) that could falsely ground answer values.
 _FIT_MASK_RE = re.compile(
-    r"10\.\d{4,5}/\S+|GLOB\w+_\d+|(?:PROP|RXN)block_\d+|BLK\w+_\d+"
+    r"10\.\d{4,9}/\S+|GLOB\w+_\d+|(?:PROP|RXN)block_\d+|BLK\w+_\d+"
     r"|INSP_[0-9a-f]+"
 )
 _FIT_BLOCK_RE = re.compile(r"(?:PROP|RXN)block_\d+")
@@ -52,6 +54,17 @@ _INSP_ID_RE = re.compile(r"^inspection_id:\s*(INSP_[0-9a-f]{12})\s*$", re.M)
 _NUM_TOKEN_RE = re.compile(
     r"[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?"
 )
+_GROUNDING_LINE_PREFIXES = ("stats (", "bracket:", "block constraints:")
+
+
+def _grounding_lines(markdown: str) -> list[str]:
+    """Verbatim aggregate lines accepted by the inspection parser."""
+    if not isinstance(markdown, str):
+        return []
+    return [
+        line for line in markdown.splitlines()
+        if line.strip().startswith(_GROUNDING_LINE_PREFIXES)
+    ]
 
 
 def _table_rows(lines: list[str]) -> tuple[list[str], list[dict[str, str]]]:
@@ -82,6 +95,7 @@ def _float_or_none(cell: str) -> float | None:
         return None
 
 
+@profile.historical_dispatch("inspection_harvest")
 def parse_inspection_markdown(text: str) -> dict[str, Any] | None:
     """Parse one ``inspect_block_table`` markdown result into a registry entry.
 
@@ -106,13 +120,11 @@ def parse_inspection_markdown(text: str) -> dict[str, Any] | None:
             if value is not None:
                 grounded.add(value)
     # Stats / bracket / constraints lines carry groundable aggregates.
-    for line in lines:
-        stripped = line.strip()
-        if stripped.startswith(("stats (", "bracket:", "block constraints:")):
-            for token in _NUM_TOKEN_RE.findall(stripped):
-                value = _float_or_none(token)
-                if value is not None:
-                    grounded.add(value)
+    for line in _grounding_lines(text):
+        for token in _NUM_TOKEN_RE.findall(line.strip()):
+            value = _float_or_none(token)
+            if value is not None:
+                grounded.add(value)
 
     mode = _MODE_RE.search(text)
     return {
@@ -129,6 +141,7 @@ def parse_inspection_markdown(text: str) -> dict[str, Any] | None:
     }
 
 
+@profile.historical_dispatch("inspection_harvest")
 def entry_from_structured(item: dict[str, Any]) -> dict[str, Any] | None:
     """Build a registry entry from an envelope ``data_inspections`` item."""
     if not isinstance(item, dict):
@@ -171,7 +184,21 @@ def entry_from_structured(item: dict[str, Any]) -> dict[str, Any] | None:
                 value = _float_or_none(cell.get("value"))
                 if value is not None:
                     grounded.add(value)
-    return {
+    grounding_lines: list[str] = []
+    carried_lines = item.get("grounding_lines")
+    if isinstance(carried_lines, list):
+        for line in carried_lines:
+            if (
+                isinstance(line, str)
+                and "\n" not in line and "\r" not in line
+                and line.strip().startswith(_GROUNDING_LINE_PREFIXES)
+            ):
+                grounding_lines.append(line)
+                for token in _NUM_TOKEN_RE.findall(line.strip()):
+                    value = _float_or_none(token)
+                    if value is not None:
+                        grounded.add(value)
+    result = {
         "doi": item["doi"],
         "lit_num_id": item.get("lit_num_id"),
         "block_number": item["block_number"],
@@ -183,6 +210,9 @@ def entry_from_structured(item: dict[str, Any]) -> dict[str, Any] | None:
         "inspection_id": item["inspection_id"],
         "markdown": item.get("markdown", ""),
     }
+    if grounding_lines:
+        result["grounding_lines"] = grounding_lines
+    return result
 
 
 def _iter_embedded_envelope_inspections(text: str):
@@ -209,6 +239,7 @@ def _iter_embedded_envelope_inspections(text: str):
         return
 
 
+@profile.historical_dispatch("inspection_harvest")
 def harvest_inspections(tool_history: list[dict] | None) -> list[dict[str, Any]]:
     """Collect all verbatim inspections visible in this run, deduplicated.
 
@@ -237,6 +268,7 @@ def harvest_inspections(tool_history: list[dict] | None) -> list[dict[str, Any]]
     return list(entries.values())
 
 
+@profile.historical_dispatch("inspection_harvest")
 def harvest_fit_artifacts(
     tool_history: list[dict] | None,
 ) -> list[dict[str, Any]]:
@@ -279,6 +311,7 @@ def harvest_fit_artifacts(
     return list(entries.values())
 
 
+@profile.historical_dispatch("inspection_harvest")
 def harvest_inspection_targets(
     tool_history: list[dict] | None,
 ) -> dict[str, list[str]]:
@@ -323,6 +356,7 @@ def harvest_inspection_targets(
     return targets
 
 
+@profile.historical_dispatch("inspection_harvest")
 def export_inspections(entries: list[dict[str, Any]], *, cap: int = 24) -> list[dict]:
     """Envelope-ready ``data_inspections`` payload (JSON-safe, bounded).
 
@@ -350,5 +384,19 @@ def export_inspections(entries: list[dict[str, Any]], *, cap: int = 24) -> list[
         # Subsystem anchoring is opt-in — never emit a null filler.
         if entry.get("BLKsubsys_id"):
             item["BLKsubsys_id"] = entry["BLKsubsys_id"]
+        # Preserve the original tool's aggregate lines through every
+        # child envelope without granting values from unseen table rows.
+        lines = entry.get("grounding_lines")
+        if lines is None:
+            lines = _grounding_lines(entry.get("markdown", ""))
+        if isinstance(lines, list):
+            lines = [
+                line for line in lines
+                if isinstance(line, str)
+                and "\n" not in line and "\r" not in line
+                and line.strip().startswith(_GROUNDING_LINE_PREFIXES)
+            ]
+            if lines:
+                item["grounding_lines"] = lines
         exported.append(item)
     return exported

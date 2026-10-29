@@ -597,6 +597,7 @@ class AgentToolCatalog:
                 )
             return compacted if expose_internal_result else compacted.text
 
+        wrapped.__wrapped__ = fn  # preserve live child-tool capability metadata
         wrapped.__name__ = getattr(fn, "__name__", tool_name)
         wrapped.__doc__ = getattr(fn, "__doc__", "")
         if getattr(fn, "_returns_subagent_answer", False):

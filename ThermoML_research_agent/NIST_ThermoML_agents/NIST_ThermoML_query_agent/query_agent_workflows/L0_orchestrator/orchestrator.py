@@ -26,7 +26,6 @@ The tool registry maps tool names to Python callables:
 
 from __future__ import annotations
 
-import asyncio
 from functools import partial
 import json
 import logging
@@ -38,7 +37,6 @@ from .._subworkflow_md_parser.subworkflow_parser import parse_workflow, render_p
 from ....general_db_query_engine.general_argo_engine_helpers.async_runner import (
     ToolExecutor,
     run_workflow,
-    sync_tool_executor_adapter,
 )
 
 # ReAct loop + result type from shared engine
@@ -48,6 +46,9 @@ from ....general_db_query_engine.general_argo_engine_helpers import (
     anchor,
     with_engine_config,
 )
+from ....general_db_query_engine.general_argo_engine_helpers.engine_react_helpers.react_loop import (
+    _apply_forced_final_grounding_gate,
+)
 # Query-agent ArgoClient with for_l0, for_l1, for_l2 factories
 from ...query_agent_argo_engine.argo_client import QueryClient as ArgoClient
 from ...ThermoML_query_argo_config import AGENT_CONFIG as _cfg
@@ -56,7 +57,7 @@ from ...ThermoML_query_argo_config import AGENT_CONFIG as _cfg
 from ....general_db_query_engine.general_subagent_skill_schema_and_parser.subworkflow_md_tool_descriptions import build_tool_instructions
 
 # L1 dispatchers
-from ..L1_workers.l1_query_dispatcher import dispatch_l1_query
+from ..L1_workers.l1_query_dispatcher import dispatch_l1_query, _get_catalog as _get_l1_catalog
 
 # Memory tools
 from ....general_db_query_engine.general_hooks_management_helpers.general_memory_management_tools_hooks_helpers import memory_management_MCP_tools as mem_tools
@@ -65,6 +66,7 @@ from ....general_db_query_engine.general_hooks_management_helpers.general_memory
 # Query-agent tool catalog (single entry point)
 from ...query_agent_toolbox.tool_catalog import L0_CATALOG
 from ....general_db_query_engine.general_tool_management_helpers.general_agent_tool_catalog import ToolEntry
+from ....general_db_query_engine.general_tool_management_helpers.tool_capabilities import bind_reachable_tools
 from ....general_db_query_engine.general_tool_management_helpers.general_agent_tool_catalog.health_check_helper import (
     run_health_check,
 )
@@ -75,6 +77,8 @@ from ....general_db_query_engine.general_hooks_management_helpers.general_postan
     prepare_answer_only_system_prompt,
 )
 from ....general_db_query_engine.general_data_grounding_gate import (
+    core_claims_source_suffix,
+    postanswer_checker_for_tools,
     export_inspections,
     harvest_inspections,
 )
@@ -85,7 +89,6 @@ from .sources_block_validation import validate_and_enrich_l0_sources
 
 # Context hooks (query-agent specific)
 from ...query_agent_context_hooks.hook_catalog import (
-    QueryWorkingMemory,
     QueryAgentHooks,
     L1AutoSaver,
     is_thin_answer,
@@ -224,6 +227,7 @@ def run(
 
     # Wrap L1_query to auto-store results in working memory
     _l1_saver = L1AutoSaver(partial(dispatch_l1_query, hooks=_agent_hooks), mem_tools, hooks=_agent_hooks)
+    bind_reachable_tools(_l1_saver, lambda: _get_l1_catalog().wrapped_tools())
     tools["L1_query"] = _l1_saver
 
     # Register L1_query in the catalog (if not yet) so the health check covers it
@@ -282,13 +286,15 @@ def run(
     )
 
     # ── Post-loop answer quality check ──────────────────────
-    if is_thin_answer(result.answer, _l1_saver.call_count):
-        result = force_data_presentation(
-            result, mem_tools, memory, client, system_prompt,
-        )
+    result = _repair_thin_answer(
+        result, _l1_saver.call_count, tools, mem_tools, memory, client,
+        system_prompt,
+    )
 
     postanswer = evaluate_and_assemble_return(
         agent_answer=result.answer,
+        postassembly_checker=postanswer_checker_for_tools(tools),
+        core_claims_system_suffix=core_claims_source_suffix(tools),
         response_json_schema=workflow["response_json_schema"],
         client=client,
         label="query-L0",
@@ -412,3 +418,34 @@ async def hardcoded_L0_wf_run(
         "phase_results": phase_results,
         "memory_path": str(memory_path),
     }
+
+
+def _repair_thin_answer(
+    result: AgentTurnResult,
+    l1_call_count: int,
+    tools: Dict[str, Callable],
+    memory_tools,
+    memory: list[dict],
+    client,
+    system_prompt: str,
+) -> AgentTurnResult:
+    """Check a post-loop data-presentation rewrite against the same gate."""
+    if not is_thin_answer(result.answer, l1_call_count):
+        return result
+    rewritten = force_data_presentation(
+        result, memory_tools, memory, client, system_prompt,
+    )
+    if rewritten is not result:
+        rewritten.answer = _apply_forced_final_grounding_gate(
+            rewritten.answer, tools, rewritten.tool_history, memory, client,
+            system_prompt,
+        )
+    return rewritten
+
+
+def available_query_l0_tools() -> Dict[str, Callable]:
+    """Callable tools installed by a standard Query L0 run."""
+    tools = _build_tool_registry()
+    # run() always installs its L1 relay after constructing the memory tools.
+    tools["L1_query"] = dispatch_l1_query
+    return tools

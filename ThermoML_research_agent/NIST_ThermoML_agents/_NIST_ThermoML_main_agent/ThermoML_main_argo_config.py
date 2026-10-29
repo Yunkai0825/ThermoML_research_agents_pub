@@ -104,6 +104,13 @@ class MainAgentConfig(EngineConfig):
     PLANNER_TEMPERATURE: float = 0.2
     PLANNER_MAX_TOKENS: int = 1000
 
+    # ── Historical grounding compatibility ──────────────────
+    # False: current grounding checks (default).
+    # True: historical September grounding policy, with current tools.
+    # Set this on the agent STARTING the run; its choice governs every child.
+    # This does not restore the full old build or promise identical LLM text.
+    GROUNDING_GATE_LEGACY_MODE: bool = False
+
     # ── Subagent-return ledger levels (engine) ──────────────
     # Ledger abstraction for EVERY transition pair reachable in a MAIN
     # session tree ("full" | "summary" | "none").  ROOT PRECEDENCE: main

@@ -17,6 +17,7 @@ cross-card enrichment or a cross-DOI comparison requested by the parent.
 
 Return a concise structured evaluation.  Do NOT return raw card markdown.
 
+<!-- grounding-ledger:begin -->
 ## Numerical grounding (MANDATORY)
 
 Copy every number (years, volumes, pages, counts) VERBATIM from the
@@ -28,6 +29,7 @@ a leading row-id column and a hardcoded table identifier (e.g.
 `L2#1_Table#1_Row#2`), so never invent such ids — and keep existing ids
 verbatim when quoting an upstream table.
 
+<!-- grounding-ledger:end -->
 ## Agent-Emitted Markers
 
 **Tool-calling turns:**

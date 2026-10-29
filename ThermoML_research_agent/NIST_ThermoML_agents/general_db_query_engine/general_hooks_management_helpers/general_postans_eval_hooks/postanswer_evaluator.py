@@ -120,14 +120,20 @@ observation back to a correction call on any mismatch.
 2. For evidence arrays (`sources`, `core_blocks_found`, and similar), emit
    one entry per database record the answer actually relies on. An entry
    the answer does not rely on must not appear; empty arrays are valid.
-3. For `sources` entries emit MINIMAL references only: `lit_num_id` and/or
-   `doi`, plus `block`, plus `BLKsubsys_id` ONLY when the answer explicitly
-   cites that subsystem. Do NOT write `description` — the block validator
-   authors it after fetching the authoritative metadata and ranges.
-4. Where the schema example shows other per-entry fields (system types,
-   component/property IDs, descriptions), fill them from the answer alone;
-   when a validation observation returns authoritative values, copy those
-   exactly in your correction.
+3. Only when the schema declares a `sources` array: emit its entries as
+   MINIMAL references: `lit_num_id` and/or `doi`, plus `block`, plus
+   `BLKsubsys_id` ONLY when the answer explicitly cites that subsystem. Do
+   NOT write `description` in a `sources` entry — the block validator
+   authors it after fetching the authoritative metadata and ranges. Never
+   add a `sources` field the schema does not declare.
+4. Every other evidence array (`core_blocks_found` and similar) carries the
+   per-entry fields its schema example shows (system types,
+   component/property IDs, descriptions); fill them from the answer alone.
+   A `description` shown there is required in every entry: one sentence on
+   what the answer uses that record for. Component/property ID lists the
+   answer does not state may stay empty arrays; the validator fills them
+   from the authoritative record. When a validation observation returns
+   authoritative values, copy those exactly in your correction.
 5. Treat BLKsubsys_id as opt-in: omit it for a declared parent-block
    anchor. Never add null merely to fill a minimal agent-authored anchor.
 6. Do not emit `answer`, `core_claims`, or `summary`; the other post-answer
@@ -394,6 +400,8 @@ def evaluate_and_assemble_return(
     validator: Callable[[dict[str, Any]], Any] | None = None,
     id_alignment_processor: Callable[..., dict[str, Any]] | None = None,
     deterministic_fields: dict[str, Any] | None = None,
+    postassembly_checker: Callable[..., dict[str, Any]] | None = None,
+    core_claims_system_suffix: str = "",
     max_retries: int = 2,
     max_tokens: int = 6000,
 ) -> PostAnswerEvaluationResult:
@@ -402,6 +410,8 @@ def evaluate_and_assemble_return(
         raise TypeError("label must be non-empty text")
     if not isinstance(task_context, str):
         raise TypeError("task_context must be text")
+    if not isinstance(core_claims_system_suffix, str):
+        raise TypeError("core_claims_system_suffix must be text")
     if not isinstance(max_retries, int) or max_retries < 0:
         raise ValueError("max_retries must be a non-negative integer")
     if deterministic_fields is not None and not isinstance(deterministic_fields, dict):
@@ -518,7 +528,7 @@ def evaluate_and_assemble_return(
                 _run_json_branch,
                 client=client,
                 prompt=core_claims_prompt,
-                system=_CORE_CLAIMS_AGENT_SYSTEM,
+                system=_CORE_CLAIMS_AGENT_SYSTEM + core_claims_system_suffix,
                 schema=core_claims_schema,
                 label=label,
                 branch="core_claims",
@@ -638,6 +648,20 @@ def evaluate_and_assemble_return(
             id_alignment=id_alignment,
             response_json_schema=response_json_schema,
         )
+        if postassembly_checker is not None:
+            assembled = postassembly_checker(
+                assembled=assembled,
+                agent_answer=answer,
+                tool_history=tool_history,
+            )
+            if not isinstance(assembled, dict) or set(assembled) != set(final_schema):
+                raise ValueError(
+                    "postassembly_checker must retain the assembled response fields"
+                )
+            if not isinstance(assembled["answer"], str):
+                raise TypeError("postassembly_checker must retain a text answer")
+            _require_core_claims(assembled)
+            validate_nested_identifiers(assembled, path="postanswer_return")
         if validator is not None:
             validator(assembled)
     except Exception as exc:
@@ -659,9 +683,11 @@ def evaluate_and_assemble_return(
         assembled=assembled,
     )
     return PostAnswerEvaluationResult(
-        answer=answer,
-        core_claims_evaluation=core_claims_evaluation,
-        id_alignment=id_alignment,
+        answer=assembled["answer"],
+        core_claims_evaluation={
+            key: assembled[key] for key in core_claims_evaluation
+        },
+        id_alignment={key: assembled[key] for key in id_alignment},
         assembled=assembled,
     )
 

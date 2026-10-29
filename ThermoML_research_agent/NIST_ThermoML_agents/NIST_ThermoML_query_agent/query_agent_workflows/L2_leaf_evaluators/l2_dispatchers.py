@@ -86,6 +86,10 @@ from ....general_db_query_engine.general_argo_engine_helpers import (
 from ....general_db_query_engine.general_text_context_marker_catalog import (
     mark_subagent_answer_tool,
 )
+from ....general_db_query_engine.general_data_grounding_gate import (
+    core_claims_source_suffix,
+    postanswer_checker_for_tools,
+)
 from ....general_db_query_engine.general_hooks_management_helpers.general_postans_eval_hooks import (
     evaluate_and_assemble_return,
     prepare_answer_only_system_prompt,
@@ -324,6 +328,8 @@ def _dispatch_l2(
 
         postanswer = evaluate_and_assemble_return(
             agent_answer=result.answer,
+            postassembly_checker=postanswer_checker_for_tools(tools),
+            core_claims_system_suffix=core_claims_source_suffix(tools),
             response_json_schema=workflow["response_json_schema"],
             client=client,
             label=f"query-L2-{catalog_kind}",
@@ -386,4 +392,15 @@ def dispatch_l2_prop_eval(
         "L2_prop_eval_workflow.md", "prop",
         purpose=purpose, instruction=instruction,
         context=context, id_catalog=id_catalog, hooks=hooks,
+    )
+
+
+from ....general_db_query_engine.general_tool_management_helpers.tool_capabilities import (
+    bind_reachable_tools,
+)
+
+for _kind in ("comp", "meas", "ref", "prop"):
+    bind_reachable_tools(
+        globals()[f"dispatch_l2_{_kind}_eval"],
+        lambda kind=_kind: _get_l2_catalog(kind).wrapped_tools(),
     )

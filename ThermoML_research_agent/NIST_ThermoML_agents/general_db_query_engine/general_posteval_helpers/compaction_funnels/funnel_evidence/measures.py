@@ -9,6 +9,7 @@ ALLOWED here — they hydrate weights, they never re-run session tools.
 from __future__ import annotations
 
 import importlib
+import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -20,65 +21,26 @@ for _p in (_AGENT_REPO, _AGENT_REPO / "card_db_search_tools",
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
-# Use the same generated-ID validators as the card producers. The historical
-# scratch script used for audits is not a runtime dependency of this package.
-import re
-
-from ThermoML_raw_json_to_card_db_parsers.id_schema import (
-    GLOBAL_PREFIX_BY_FIELD,
-    require_block_id,
-    require_block_local_id,
-    require_doi_comp_id,
-    require_doi_comp_sample_id,
-    require_global_id,
-    require_property_assessment_id,
+_GLOBAL_ID = r"GLOB(?:lit|comp|prop|var|constr|meas|phase|blocktype|rxntype|solvent)_[1-9]\d*"
+_BLOCK_ID = r"(?:PROP|RXN)block_[1-9]\d*"
+_ID_RE = re.compile(
+    rf"(?<!\w)(?:GLOBlit_[1-9]\d*::{_BLOCK_ID}|{_GLOBAL_ID}|"
+    rf"DOIcompSample_[1-9]\d*_[1-9]\d*|DOIcomp_[1-9]\d*|"
+    rf"BLKpropAssessment_[1-9]\d*_[1-9]\d*|"
+    rf"BLK(?:prop|var|constr|point|subsys)_[1-9]\d*|"
+    rf"{_BLOCK_ID})(?!\w)"
 )
-
-_ID_CANDIDATES = re.compile(
-    r"(?<!\w)(?:GLOB[A-Za-z]+|DOIcomp(?:Sample)?|(?:PROP|RXN)block|"
-    r"BLK[A-Za-z]+)_[0-9]+(?:_[0-9]+)*(?!\w)"
-)
-_QUALIFIED_BLOCK = re.compile(
-    r"(?<!\w)(GLOBlit_[0-9]+)\s*::\s*((?:PROP|RXN)block_[0-9]+)(?!\w)"
-)
-
-
-def _valid_scoped_id(token: str) -> bool:
-    try:
-        for field_name, prefix in GLOBAL_PREFIX_BY_FIELD.items():
-            if token.startswith(prefix):
-                require_global_id(field_name, token)
-                return True
-        if token.startswith("DOIcompSample_"):
-            require_doi_comp_sample_id(token)
-        elif token.startswith("DOIcomp_"):
-            require_doi_comp_id(token)
-        elif token.startswith(("PROPblock_", "RXNblock_")):
-            require_block_id(token)
-        elif token.startswith("BLKpropAssessment_"):
-            require_property_assessment_id(token)
-        else:
-            kind = token.split("_", 1)[0].removeprefix("BLK")
-            require_block_local_id(kind, token)
-        return True
-    except (TypeError, ValueError):
-        return False
+_DOI_RE = re.compile(r"(?<!\w)10\.\d{4,9}/[^\s|,;\]\[(){}<>\"']+", re.I)
 
 
 def thermoml_ids(text: str) -> set[str]:
-    """Extract valid generated IDs and explicitly qualified literature blocks.
-
-    Keep the constituent IDs as well as qualified blocks; ``build_block_canon``
-    reconciles bare/qualified block spellings downstream. Source DOI strings,
-    workflow labels, and inspection IDs are not generated card identifiers.
-    """
+    """Extract canonical ThermoML identifiers and DOI references;
+    session-structural tokens (WM record labels, section sids) are not
+    knowledge ids and are dropped."""
     text = text or ""
-    ids = {token for token in _ID_CANDIDATES.findall(text)
-           if _valid_scoped_id(token)}
-    for literature, block in _QUALIFIED_BLOCK.findall(text):
-        if _valid_scoped_id(literature) and _valid_scoped_id(block):
-            ids.add(f"{literature}::{block}")
-    return ids
+    return set(_ID_RE.findall(text)) | {
+        doi.rstrip(".\\") for doi in _DOI_RE.findall(text)
+    }
 
 
 def block_tokens(ids) -> frozenset:

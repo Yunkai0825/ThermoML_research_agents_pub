@@ -15,6 +15,7 @@ Public API
 - parse_csv_text(csv_text) → list[dict]
 - arrays_to_csv(columns, data_dict) → str
 - identify_columns(columns, property_hint, composition_hint) → ColumnMatch
+- companion_columns(columns) → set  ("<col>_U" / "<col>_limit" beside <col>)
 - filter_mixture_points(x, y, eps=0.02) → (x_mix, y_mix)
 """
 
@@ -26,6 +27,7 @@ from .block_data_io import (
     parse_csv_text,
     arrays_to_csv,
     identify_columns,
+    companion_columns,
     filter_mixture_points,
 )
 from . import virtual_block_registry
@@ -38,6 +40,7 @@ __all__ = [
     "parse_csv_text",
     "arrays_to_csv",
     "identify_columns",
+    "companion_columns",
     "filter_mixture_points",
     "virtual_block_registry",
 ]
